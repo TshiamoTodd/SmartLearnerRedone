@@ -1,65 +1,116 @@
-import { View, Text, FlatList } from 'react-native'
-import React from 'react'
+import { View, Text, FlatList, Alert, Image, ActivityIndicator } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import CustomHeader from '@/components/CustomeHeader'
 import CustomCard from '@/components/CustomCard'
-
-const data = [
-  {
-    id: 1,
-    title: 'Title 1',
-    subTitle: 'Subtitle 1',
-    image: require('@/assets/images/bg-1.webp')
-  },
-  {
-    id: 2,
-    title: 'Title 2',
-    subTitle: 'Subtitle 2',
-    image: require('@/assets/images/bg-1.webp')
-  },
-  {
-    id: 3,
-    title: 'Title 3',
-    subTitle: 'Subtitle 3',
-    image: require('@/assets/images/bg-1.webp')
-  },
-  {
-    id: 4,
-    title: 'Title 4',
-    subTitle: 'Subtitle 4',
-    image: require('@/assets/images/bg-1.webp')
-  },
-  {
-    id: 5,
-    title: 'Title 4',
-    subTitle: 'Subtitle 4',
-    image: require('@/assets/images/bg-1.webp')
-  }
-]
+import { useAuthContext } from '@/context/AuthProvider'
+import { ActiveSubject, useOnboarding } from '@/context/OnboardingProvider'
+import { supabase } from '@/lib/supabase'
+import { Href, router } from 'expo-router'
+import { getSubjectsByGradeAndSchool } from '@/utils'
 
 const Home = () => {
-  const name = 'John Doe'
+  const {user} = useAuthContext();
+  const {
+    gradeRange, 
+    schoolLevel, 
+    setActiveSubject, 
+    setSchoolLevel, 
+    setGradeRange
+  } = useOnboarding();
+
+  const name = user?.email!.split('@')[0];
+
+  const [loading, setLoading] = useState(true)
+  const [resultSubjects, setResultSubjects] = useState<{ subject_name: string; subject_id: string; }[]>([]);
+
+  useEffect(() => {
+    const fetchDataAndLoadSubjects = async () => {
+      if (!user) {
+        router.push('/(auth)/SignIn' as Href);
+        return;
+      }
+  
+      setLoading(true);
+  
+      try {
+        // Fetch onboarding data
+        const { data: onboardingData, error: onboardingError } = await supabase
+          .from('Onboarding')
+          .select('school_level, grade_range')
+          .eq('user_id', user?.id)
+          .single();
+  
+        if (onboardingError) {
+          console.error(onboardingError);
+          Alert.alert('Error', onboardingError.message);
+          return;
+        }
+  
+        console.log(onboardingData);
+  
+        if (onboardingData) {
+          setGradeRange(onboardingData.grade_range);
+          setSchoolLevel(onboardingData.school_level);
+  
+          // Fetch subjects based on fetched onboarding data
+          const subjectsData = await getSubjectsByGradeAndSchool(
+            onboardingData.grade_range,
+            onboardingData.school_level
+          );
+  
+          setResultSubjects(subjectsData);
+          console.log(subjectsData)
+        }
+      } catch (error: any) {
+        console.error("Error:", error);
+        Alert.alert('Error', error.message || String(error));
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchDataAndLoadSubjects();
+  }, [user, router, setGradeRange, setSchoolLevel, setResultSubjects]);
+
+  const onRedirectHandler = ({subjectName, subjectId}: {subjectName: string, subjectId: string}) => {
+    setActiveSubject!({subjectName, subjectId} as ActiveSubject)
+    router.push(`/(dashboard)/subject/${subjectId}/Options` as Href)
+  }
+
+  if (loading) {
+    return (
+      <View className='flex-1 items-center justify-center '> 
+        <ActivityIndicator size='large' color='blue' />
+      </View>
+    )
+  }
   return (
-    <View className='p-0 bg-slate-200 w-full h-full'>
+    <View className='p-0 bg-slate-300 w-full h-full'>
       <CustomHeader 
         title='Dashboard' 
         subtitle={`Welcome back, ${name}`}
         showBackButton={false} 
       />
-      <View className='flex flex-col p-4 mb-5 h-full'>
+      <View className='flex flex-col p-4 mb-5 h-[90%]'>
         <FlatList
-          data={data}
+          data={resultSubjects}
           renderItem={({ item }) => (
             <CustomCard 
-              label={item.title}
-              subTitle={item.subTitle}
-              headerImage={item.image}
-              onPressAction={() => {}}
+              label={item.subject_name} 
+              subTitle={"Find more about services for your subject"} 
+              headerImage={require('@/assets/images/bg-3.jpg')} 
+              onPressAction={() => {
+                const subject_name = item.subject_name
+                const subject_id = item.subject_id
+                // console.log({subject_id, subject_name})
+                onRedirectHandler({subjectName: subject_name, subjectId: subject_id})
+              }}
             />
           )}
         />
-      </View>
-      <View className='h-[12%]'>
+        <View className='h-[10%]'>
 
+        </View>
       </View>
 
     </View>

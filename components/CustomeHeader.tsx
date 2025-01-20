@@ -21,19 +21,19 @@ const CustomHeader = ({
     <View className={`w-full items-center flex ${headerStyles}`}>
       <View className='w-full items-center justify-between flex flex-row py-2 px-3'>
         <View className='flex flex-col'>
-          <Text className='ml-3 text-2xl font-light text-gray-800'>
+          <Text className='ml-3 text-2xl font-light text-gray-900'>
             {title}
           </Text>
           {subtitle && 
             (
-            <Text className='ml-4 text-gray-400'>
+            <Text className='ml-4 text-gray-500 text-xs'>
               {subtitle}
             </Text>
           )}
         </View>
         {showBackButton && (
           <TouchableOpacity onPress={() => {router.back()}}>
-            <Ionicons name='chevron-back-outline' size={30} color='white' />
+            <Ionicons name='chevron-back-outline' size={30} color='gray' />
           </TouchableOpacity>
         )}
       </View>

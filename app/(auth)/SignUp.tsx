@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Image, StatusBar, TouchableOpacity, Alert } from 'react-native'
+import { View, Text, TextInput, Image, StatusBar, TouchableOpacity, Alert, ActivityIndicator } from 'react-native'
 import React, { useState } from 'react'
 import Animated, { FadeIn, FadeInDown, FadeInUp, FadeOut } from 'react-native-reanimated'
 import { Href, router } from 'expo-router'
@@ -24,6 +24,7 @@ const SignUp = () => {
 
             if (error) {
                 Alert.alert('Error', error.message)
+                return
             }
 
             if (data) {
@@ -38,6 +39,7 @@ const SignUp = () => {
 
                 if (userError) {
                     Alert.alert('Error', userError.message)
+                    return
                 }
 
                 //Alert.alert('Success', 'Account created successfully')
@@ -138,10 +140,15 @@ const SignUp = () => {
                     entering={FadeInDown.delay(800).duration(1000).springify()}
                 >
                     <TouchableOpacity
-                        className='w-full bg-sky-400 p-3 rounded-full mb-3'
+                        className='w-full items-center justify-center bg-sky-400 p-3 rounded-full mb-3'
                         onPress={onSignUpWithSupabase}
                     >
-                        <Text className='text-xl font-bold text-white text-center'>SignUp</Text>
+                        {isLoading 
+                        ? (
+                            <ActivityIndicator size='small' color='white' />
+                        ) : (
+                            <Text className='text-xl font-bold text-white text-center'>SignUp</Text>
+                        )}
                     </TouchableOpacity>
                 </Animated.View>
 
