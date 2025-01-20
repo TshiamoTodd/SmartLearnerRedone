@@ -1,9 +1,17 @@
-import { View, Text, TextInput, Image, StatusBar, TouchableOpacity, Alert, ActivityIndicator } from 'react-native'
+import { View, Text, TextInput, Image, StatusBar, TouchableOpacity, Alert, ActivityIndicator, AppState } from 'react-native'
 import React, { useState } from 'react'
 import Animated, { FadeIn, FadeInDown, FadeInUp, FadeOut } from 'react-native-reanimated'
 import { Href, router } from 'expo-router'
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { supabase } from '@/lib/supabase';
+
+AppState.addEventListener('change', (state) => {
+    if (state === 'active') {
+      supabase.auth.startAutoRefresh()
+    } else {
+      supabase.auth.stopAutoRefresh()
+    }
+  })
 
 const SignIn = () => {
     const [isLoading, setIsLoading] = useState(false)
