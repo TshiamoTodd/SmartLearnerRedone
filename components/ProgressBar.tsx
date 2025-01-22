@@ -4,16 +4,12 @@ import React from 'react'
 interface ProgressBarProps {
     progress: number
     height?: number
-    outerBackgroundColor?: string
-    innerBackgroundColor?: string
     padded?: boolean
 }
 
 const ProgressBar = ({
     progress, 
     height, 
-    outerBackgroundColor, 
-    innerBackgroundColor, 
     padded
 }: ProgressBarProps) => {
   return (

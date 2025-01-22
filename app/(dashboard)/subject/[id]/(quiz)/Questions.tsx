@@ -1,11 +1,13 @@
-import { View, Text, Pressable, Alert, Animated, ActivityIndicator, Image } from 'react-native'
+import { View, Text, Pressable, Alert, Animated, ActivityIndicator, Image, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { techQuizQuestions } from '@/config/questions'
 import { RelativePathString, router, useLocalSearchParams } from 'expo-router'
 import ProgressBar from '@/components/ProgressBar'
+import CustomQuizBtn from '@/components/CustumQuizBtn'
 import OpenAI from "openai";
 
 const Questions = () => {
+
     const {subjectName, topic, id} = useLocalSearchParams()
 
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -81,6 +83,10 @@ const Questions = () => {
         generateQuiz()
     }, [])
 
+    console.log('Render CustumQuizBtn')
+    console.log('isCorrect', isCorrect)
+    console.log('selectedOption', selectedOption)
+
     const progress = (currentQuestionIndex + 1) / quizProgress
 
     const handleNext = () => {
@@ -97,6 +103,7 @@ const Questions = () => {
     }
 
     const handleOptionPress = (pressedOption: string) => {
+        
         console.log(pressedOption)
         setSelectedOption(pressedOption)
 
@@ -131,14 +138,14 @@ const Questions = () => {
                 <Text className='text-lg mt-2 text-[#5470FD]'>
                     Failed to generate quiz questions
                 </Text>
-                <Pressable 
+                <TouchableOpacity 
                     className='bg-[#5470FD] p-4 mt-4 rounded-full w-full'
                     onPress={() => router.push(`/subject/${id}/SelectTopic` as RelativePathString)}
                 >
                     <Text className='text-white text-center text-md font-bold'>
                         Try Again
                     </Text>
-                </Pressable>
+                </TouchableOpacity>
             </View>
         )
     }
@@ -149,42 +156,39 @@ const Questions = () => {
                 <ProgressBar
                     progress={progress}
                     height={25}
-                    outerBackgroundColor='[#5470FD]'
-                    innerBackgroundColor='gray-500'
                     padded
                 />
             </View>
-            <Text className='text-2xl mb-2'>
+            <Text className='text-2xl mb-2 mt-2'>
                 {questions[currentQuestionIndex].question}
             </Text>
             {
                 questions[currentQuestionIndex].options.map((option, index) => (
-                    <Pressable 
+                    <TouchableOpacity
                         key={index}
-                        onPress={() => handleOptionPress(option)}
-                        style={{marginVertical: 5, borderRadius: 3, borderColor: '#5470FD'}}
+                        disabled={!!selectedOption}
                         className={`border-[#5470FD] border p-4 my-2 rounded-md ${
                             selectedOption === option 
                             ? isCorrect 
-                                ? 'border-green-500 bg-green-200'
-                                : 'border-red-500 bg-red-200'
+                                ? 'border-[#10b981] bg-[#d1fae5]'
+                                : 'border-[#ef4444] bg-[#fecaca]'
                                 : 'border-[#5470FD]'
                         }`}
-                        disabled={!!selectedOption}
-                    >
+                        onPress={() => handleOptionPress(option)}
+                    >   
                         <Text className='text-md'>{option}</Text>
-                    </Pressable>
+                    </TouchableOpacity>
                 ))
             }
 
-            <Pressable 
+            <TouchableOpacity 
                 onPress={handleNext}
                 className='bg-[#5470FD] p-4 rounded-md mt-6'
             >
                 <Text className='text-white text-lg text-center font-bold'>
                     {currentQuestionIndex === techQuizQuestions.length - 1 ? 'Finish' : 'Next'}
                 </Text>
-            </Pressable>
+            </TouchableOpacity>
         </View>
     )
 }

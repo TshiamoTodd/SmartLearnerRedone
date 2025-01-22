@@ -10,7 +10,7 @@ const Options = () => {
     const {id} = useLocalSearchParams<{id:string}>();
 
     return (
-        <View className='flex h-full w-full'>
+        <View className='flex h-full w-full bg-slate-300'>
             <CustomHeader  
                 title={activeSubject?.subjectName as string}
                 subtitle='Select A Option'
