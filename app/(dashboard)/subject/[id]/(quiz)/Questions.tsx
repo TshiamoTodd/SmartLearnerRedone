@@ -122,15 +122,18 @@ const Questions = () => {
             <View className='flex-1 justify-center items-center p-5'>
                 <Image
                     source={require('@/assets/images/error_image.png')}
-                    className='h-3/6'
-                    style={{aspectRatio: 1}}
+                    style={{
+                        height: "50%",
+                        resizeMode: "contain",
+                        aspectRatio: 1,
+                    }}
                 />
-                <Text className='text-lg mt-2 text-purple-500'>
+                <Text className='text-lg mt-2 text-[#5470FD]'>
                     Failed to generate quiz questions
                 </Text>
                 <Pressable 
-                    className='bg-purple-500 p-4 mt-4 rounded-full w-full'
-                    onPress={() => router.push('/')}
+                    className='bg-[#5470FD] p-4 mt-4 rounded-full w-full'
+                    onPress={() => router.push(`/subject/${id}/SelectTopic` as RelativePathString)}
                 >
                     <Text className='text-white text-center text-md font-bold'>
                         Try Again
@@ -146,7 +149,7 @@ const Questions = () => {
                 <ProgressBar
                     progress={progress}
                     height={25}
-                    outerBackgroundColor='purple-500'
+                    outerBackgroundColor='[#5470FD]'
                     innerBackgroundColor='gray-500'
                     padded
                 />
@@ -159,12 +162,13 @@ const Questions = () => {
                     <Pressable 
                         key={index}
                         onPress={() => handleOptionPress(option)}
-                        className={`border-purple-500 border p-4 my-2 rounded-md ${
+                        style={{marginVertical: 5, borderRadius: 3, borderColor: '#5470FD'}}
+                        className={`border-[#5470FD] border p-4 my-2 rounded-md ${
                             selectedOption === option 
                             ? isCorrect 
                                 ? 'border-green-500 bg-green-200'
                                 : 'border-red-500 bg-red-200'
-                                : 'border-purple-500'
+                                : 'border-[#5470FD]'
                         }`}
                         disabled={!!selectedOption}
                     >
@@ -175,7 +179,7 @@ const Questions = () => {
 
             <Pressable 
                 onPress={handleNext}
-                className='bg-purple-500 p-4 rounded-md mt-6'
+                className='bg-[#5470FD] p-4 rounded-md mt-6'
             >
                 <Text className='text-white text-lg text-center font-bold'>
                     {currentQuestionIndex === techQuizQuestions.length - 1 ? 'Finish' : 'Next'}

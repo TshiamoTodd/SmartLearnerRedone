@@ -17,9 +17,9 @@ const ProgressBar = ({
     padded
 }: ProgressBarProps) => {
   return (
-    <View className={`w-full border rounded-xl items-start justify-center h-[${height}px] border-${outerBackgroundColor} ${padded ? 'p-1' : 'p-0'}`}>
+    <View className={`w-full border rounded-xl items-start justify-center h-[${height}px] border-[#5470FD] ${padded ? 'p-1' : 'p-0'}`}>
       <View
-        className={`rounded-xl h-[10px] bg-purple-300`}
+        className={`rounded-xl h-[10px] bg-[#5470FD]`}
         style={{width: `${progress * 100}%`}}
       >
         <Text></Text>

@@ -16,17 +16,21 @@ const StartQuiz = () => {
                 showBackButton={true}
                 headerStyles='pr-3'
             />
-            <Image
-                source={require('@/assets/images/splash.png')}
-                className='h-3/6'
-                style={{aspectRatio: 1}}
-            />
+                <Image
+                    source={require('@/assets/images/splash.png')}
+                    style={{ // Set height relative to the screen
+                        height: '50%',
+                        aspectRatio: 1, // Maintain aspect ratio
+                        resizeMode: 'contain',
+                    }}
+                />
+
             <View className='w-full flex p-5'>
                 <Text className='text-2xl text-center text-[#5470FD] mb-3'>Instructions</Text>
                 <Text className='text-center mb-2 font-light text-md'>
                     {topic}
                 </Text>
-                <View style={{backgroundColor: '#5470FD'}} className=' rounded p-5 items-center justify-center'>
+                <View style={{ backgroundColor: '#5470FD', borderRadius: 5, justifyContent:'center', alignItems:'center', padding: 10 }}>
                     <Text className='text-white text-lg'>
                         Each Quiz Has Four Options Quiz
                     </Text>
@@ -37,23 +41,19 @@ const StartQuiz = () => {
                         Score will be shown at the end.
                     </Text>
                 </View>
-
             </View>
 
             <View className='w-full flex items-center justify-center'>
                 <Pressable
-                    style={{backgroundColor: '#5470FD'}}
-                    className='px-6 py-3 rounded-full w-1/2'
+                    style={{ backgroundColor: '#5470FD', paddingHorizontal: 10, paddingVertical: 20, borderRadius: 999, width: '50%' }}
                     onPress={() => router.push({
                         pathname: `/subject/${id}/Questions` as RelativePathString,
-                        params: {topic: topic}
+                        params: { topic: topic }
                     })}
                 >
                     <Text className='text-white text-center text-lg'>Start Quiz</Text>
                 </Pressable>
-
             </View>
-
         </View>
     )
 }

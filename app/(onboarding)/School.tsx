@@ -1,8 +1,8 @@
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native'
-import { Dropdown } from 'react-native-element-dropdown'
 import React, { useState } from 'react'
 import { Href, router } from 'expo-router'
 import { useOnboarding } from '@/context/OnboardingProvider'
+import {Picker} from '@react-native-picker/picker';
 
 const schoolLevels = [
     {label: 'Primary', value: '1'},
@@ -34,23 +34,15 @@ const School = () => {
                     <Text className='pl-1 text-gray-700 font-semibold text-sm'>
                         What is your schooling level?
                     </Text>
-                    <Dropdown
-                            style={styles.dropdown}
-                            placeholderStyle={styles.placeholderStyle}
-                            selectedTextStyle={styles.selectedTextStyle}
-                            inputSearchStyle={styles.inputSearchStyle}
-                            data={schoolLevels}
-                            search
-                            maxHeight={300}
-                            labelField="label"
-                            valueField="value"
-                            placeholder="Select item"
-                            searchPlaceholder="Search..."
-                            value={selctedSchoolLevel}
-                            onChange={item => {
-                                setSelectedSchoolLevel(item.value);
-                            }}
-                    />
+                    <Picker
+                        selectedValue={selctedSchoolLevel}
+                        onValueChange={(itemValue, itemIndex) =>
+                            setSelectedSchoolLevel(itemValue)
+                    }>
+                        {schoolLevels.map((item, index) => (
+                            <Picker.Item label={item.label} value={item.value} key={index} />
+                        ))}
+                    </Picker>
                 </View>
             </View>
 
@@ -73,29 +65,3 @@ const School = () => {
 }
 
 export default School
-
-const styles = StyleSheet.create({
-    dropdown: {
-      paddingLeft: 5,
-      margin: 16,
-      height: 50,
-      borderBottomColor: 'gray',
-      borderBottomWidth: 0.5,
-      marginTop: 10,
-    },
-    icon: {
-      marginRight: 5,
-    },
-    placeholderStyle: {
-      fontSize: 16,
-      color: 'gray',
-    },
-    selectedTextStyle: {
-      fontSize: 16,
-      color: 'gray',
-    },
-    inputSearchStyle: {
-      height: 40,
-      fontSize: 16,
-    },
-});

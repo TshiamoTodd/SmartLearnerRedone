@@ -69,8 +69,7 @@ const SelectTopic = () => {
             <View className='flex-1 justify-center items-center p-5 bg-slate-300'>
                 <Image
                     source={require('@/assets/images/error_image.png')}
-                    className='h-3/6'
-                    style={{aspectRatio: 1}}
+                    style={{aspectRatio: 1, height: '50%', resizeMode: 'contain'}}
                 />
                 <Text className='text-lg mt-2 text-gray-700'>
                     Failed to load subjects
@@ -93,10 +92,9 @@ const SelectTopic = () => {
             <View className='flex-1 justify-center items-center p-5 bg-slate-300'>
                 <Image
                     source={require('@/assets/images/fail_image.png')}
-                    className='h-3/6'
-                    style={{aspectRatio: 1}}
+                    style={{height: "50%",aspectRatio: 1, resizeMode: "contain"}}
                 />
-                <Text className='text-lg mt-2 text-gray-700 text-center px-5 font-light'>
+                <Text className='text-lg mt-2 text-gray-700 text-center px-5 font-light mb-3'>
                     Ohh No!, There's no quiz topics available, Try again later.
                 </Text>
                 <Pressable 
@@ -104,7 +102,7 @@ const SelectTopic = () => {
                     className='p-4 mt-4 rounded-full w-full'
                     onPress={() => router.back()}
                 >
-                    <Text className='text-white text-center text-md font-bold'>
+                    <Text className='text-white text-center text-md font-medium'>
                         Try Again
                     </Text>
                 </Pressable>

@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { useOnboarding } from '@/context/OnboardingProvider'
 import { useAuthContext } from '@/context/AuthProvider'
-import { Dropdown } from 'react-native-element-dropdown'
+import {Picker} from '@react-native-picker/picker';
 import { supabase } from '@/lib/supabase'
 import { Href, router } from 'expo-router'
 
@@ -20,6 +20,8 @@ const secondaryGradeLevels = [
 const Grade = () => {
   const {user} = useAuthContext()
   const {schoolLevel, gradeRange, setGradeRange} = useOnboarding()
+  const isPrimary = schoolLevel === '1'
+  const gradeRanges = isPrimary ? primaryGradeLevels : secondaryGradeLevels
 
   const [gradeRangeValue, setGradeRangeValue] = useState('');
 
@@ -55,23 +57,15 @@ const Grade = () => {
               <Text className='pl-1 text-gray-700 font-semibold text-sm'>
                 What is your Grade range?
               </Text>
-              <Dropdown
-                      style={styles.dropdown}
-                      placeholderStyle={styles.placeholderStyle}
-                      selectedTextStyle={styles.selectedTextStyle}
-                      inputSearchStyle={styles.inputSearchStyle}
-                      data={schoolLevel === '1' ? primaryGradeLevels : secondaryGradeLevels}
-                      search
-                      maxHeight={300}
-                      labelField="label"
-                      valueField="value"
-                      placeholder="Select item"
-                      searchPlaceholder="Search..."
-                      value={gradeRangeValue}
-                      onChange={item => {
-                          setGradeRangeValue(item.value);
-                      }}
-              />
+              <Picker
+                    selectedValue={gradeRangeValue}
+                    onValueChange={(itemValue, itemIndex) =>
+                      setGradeRangeValue(itemValue)
+                }>
+                    {gradeRanges.map((item, index) => (
+                        <Picker.Item label={item.label} value={item.value} key={index} />
+                    ))}
+                </Picker>
           </View>
       </View>
 
@@ -86,6 +80,7 @@ const Grade = () => {
               >
                   Next
               </Text>
+             
               
           </TouchableOpacity>
       </View>
@@ -95,28 +90,3 @@ const Grade = () => {
 
 export default Grade
 
-const styles = StyleSheet.create({
-  dropdown: {
-    paddingLeft: 5,
-    margin: 16,
-    height: 50,
-    borderBottomColor: 'gray',
-    borderBottomWidth: 0.5,
-    marginTop: 10,
-  },
-  icon: {
-    marginRight: 5,
-  },
-  placeholderStyle: {
-    fontSize: 16,
-    color: 'gray',
-  },
-  selectedTextStyle: {
-    fontSize: 16,
-    color: 'gray',
-  },
-  inputSearchStyle: {
-    height: 40,
-    fontSize: 16,
-  },
-});

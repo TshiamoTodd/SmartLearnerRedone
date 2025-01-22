@@ -4,6 +4,7 @@ import Animated, { FadeIn, FadeInDown, FadeInUp, FadeOut } from 'react-native-re
 import { Href, router } from 'expo-router'
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { supabase } from '@/lib/supabase';
+import { useAuthContext } from '@/context/AuthProvider';
 
 AppState.addEventListener('change', (state) => {
     if (state === 'active') {
@@ -14,6 +15,7 @@ AppState.addEventListener('change', (state) => {
   })
 
 const SignIn = () => {
+    const {setUsername} = useAuthContext()
     const [isLoading, setIsLoading] = useState(false)
     const [form, setForm] = useState({
         email: '',
@@ -23,10 +25,26 @@ const SignIn = () => {
     const signInWithSupabase = async () => {
         try {
             setIsLoading(true)
-            const {error} = await supabase.auth.signInWithPassword({
+            const {data, error} = await supabase.auth.signInWithPassword({
                 email: form.email,
                 password: form.password
             })
+
+            if(data.session){
+                const formattedEmail:string = form.email.toLowerCase().trim().toString()
+                console.log(formattedEmail)
+                const {data: userData, error: userError} = await supabase
+                .from('User')
+                .select('username')
+                .eq('email', formattedEmail)
+                .single()
+
+                console.log(userData)
+                if(userError) {
+                    console.log(userError)
+                }
+                setUsername!(userData?.username)
+            }
 
             if (error) {
                 Alert.alert('Error', error.message)
@@ -148,3 +166,7 @@ const SignIn = () => {
 }
 
 export default SignIn
+
+function lowercase(email: string) {
+    throw new Error('Function not implemented.');
+}

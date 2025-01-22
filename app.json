@@ -1,19 +1,19 @@
 {
   "expo": {
-    "name": "side_test",
-    "slug": "side_test",
+    "name": "Smart Learner",
+    "slug": "smart_learner",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/splash_icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/splash_icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.tshiamotodd.sidetest"
@@ -28,7 +28,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/splash_image.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
@@ -43,7 +43,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "dca74073-9a50-4c98-8870-0f21576e5a71"
+        "projectId": "b6d6ae14-a6d0-402a-94cd-9fbb751e8024"
       }
     }
   }

@@ -8,7 +8,7 @@ import { useOnboarding } from '@/context/OnboardingProvider'
 
 const Profile = () => {
   const [isLoading, setIsLoading] = useState(false)
-  const { user } = useAuthContext()
+  const { user, username } = useAuthContext()
   const { schoolLevel, gradeRange } = useOnboarding()
 
   const primaryGradeLevels = [
@@ -65,7 +65,7 @@ const Profile = () => {
           <View className='flex w-full h-[60%] absolute px-5 top-28'>
             <CustomCard
               label='Name'
-              subTitle={user?.email?.split('@')[0].split('.')[0] || ''}
+              subTitle={username || 'No userName'}
             />
             <CustomCard
               label='Email'

@@ -9,7 +9,7 @@ import { Href, router } from 'expo-router'
 import { getSubjectsByGradeAndSchool } from '@/utils'
 
 const Home = () => {
-  const {user} = useAuthContext();
+  const {user, username } = useAuthContext();
   const {
     gradeRange, 
     schoolLevel, 
@@ -18,7 +18,6 @@ const Home = () => {
     setGradeRange
   } = useOnboarding();
 
-  const name = user?.email!.split('@')[0];
 
   const [loading, setLoading] = useState(true)
   const [resultSubjects, setResultSubjects] = useState<{ subject_name: string; subject_id: string; }[]>([]);
@@ -57,9 +56,15 @@ const Home = () => {
             onboardingData.grade_range,
             onboardingData.school_level
           );
+
+          if(subjectsData.length === 0) {
+
+          } else {
+
+            setResultSubjects(subjectsData);
+
+          }
   
-          setResultSubjects(subjectsData);
-          console.log(subjectsData)
         }
       } catch (error: any) {
         console.error("Error:", error);
@@ -88,7 +93,7 @@ const Home = () => {
     <View className='p-0 bg-slate-300 w-full h-full'>
       <CustomHeader 
         title='Dashboard' 
-        subtitle={`Welcome back, ${name}`}
+        subtitle={`Welcome back, ${username}`}
         showBackButton={false} 
       />
       <View className='flex flex-col p-4 mb-5 h-[90%]'>

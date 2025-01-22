@@ -10,7 +10,7 @@ const Options = () => {
     const {id} = useLocalSearchParams<{id:string}>();
 
     return (
-        <View className='flex h-full w-full bg-slate-300'>
+        <View className='flex h-full w-full'>
             <CustomHeader  
                 title={activeSubject?.subjectName as string}
                 subtitle='Select A Option'
@@ -29,7 +29,7 @@ const Options = () => {
                         label='Homework'
                         headingStyle='text-lg'
                         subTitle='Access all homework for this subject'
-                        onPressAction={() => {router.push(`/(dashboard)/subject/${id}/(homework)/Homework` as Href)}}
+                        onPressAction={() => {router.push(`/(dashboard)/subject/${id}/Homework` as Href)}}
                     />
                      <CustomCard 
                         label='Quiz'

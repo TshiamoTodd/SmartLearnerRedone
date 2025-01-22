@@ -8,15 +8,20 @@ const AuthContext = createContext<{
     session: Session | null;
     user: Session['user'] | null;
     isAuthenticated: boolean;
+    username: string;
+    setUsername?: React.Dispatch<React.SetStateAction<string>>;
 }>({
     session: null,
     user: null,
     isAuthenticated: false,
+    username: '',
+    setUsername: () => {}
 });
 
 export default function AuthProvider({children}: {children: ReactNode}) {
     const [session, setSession] = useState<Session | null>(null)
     const [isReady, setIsReady] = useState(false)
+    const [username, setUsername] = useState('')
 
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
@@ -41,7 +46,7 @@ export default function AuthProvider({children}: {children: ReactNode}) {
     }
 
     return (
-        <AuthContext.Provider value={{session, user: session?.user ?? null, isAuthenticated: !!session?.user}}>
+        <AuthContext.Provider value={{session, user: session?.user ?? null, isAuthenticated: !!session?.user, username, setUsername}}>
             {children}
         </AuthContext.Provider>
     );
