@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
 
-interface Message{
+export interface Message{
     id: string;
     type: 'text';
     content: string;

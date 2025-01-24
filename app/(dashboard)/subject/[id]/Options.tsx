@@ -23,7 +23,7 @@ const Options = () => {
                         label='Course'
                         headingStyle='text-lg'
                         subTitle='Access all courses for this subject'
-                        onPressAction={() => {router.push(`/(dashboard)/subject/${id}/(course)/Course` as Href)}}
+                        onPressAction={() => {router.push(`/(dashboard)/subject/${id}/VideoList` as Href)}}
                     />
                      <CustomCard 
                         label='Homework'

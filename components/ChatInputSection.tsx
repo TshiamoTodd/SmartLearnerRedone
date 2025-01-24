@@ -1,22 +1,79 @@
-import { View, Text, KeyboardAvoidingView, Platform, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, KeyboardAvoidingView, Platform, TextInput, TouchableOpacity, Alert } from 'react-native'
 import React, { useState } from 'react'
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 import UploadFileBtn from './UploadFileBtn';
 import { useFileContext } from '@/context/FileProvider';
 import OpenCameraBtn from './OpenCameraBtn';
+import { Message, useMessageContext } from '@/context/MessageProvider';
+import OpenAI from 'openai';
 
-const ChatInputSection = ({setIsChatActive} : {setIsChatActive: React.Dispatch<boolean>}) => {
+const openai = new OpenAI({
+    apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY,
+});
+
+const ChatInputSection = ({
+    setIsChatActive,
+    isChatActive
+} : {
+    isChatActive: boolean;
+    setIsChatActive: React.Dispatch<React.SetStateAction<boolean>>
+}) => {
     const {ocrFileContents} = useFileContext()
+    const {setMessages, messages} = useMessageContext()
 
     const [height, setHeight] = useState(35);
     const [margin, setMargin] = useState(0);
     const [isKeyboardActive, setIsKeyboardActive] = useState(false)
     const [inputTextValue, setInputTextValue] = useState(ocrFileContents || "")
 
+    const sendMessage = async () => {
+        const userMessage: Message = { id: Date.now().toString(), type: 'text', content: inputTextValue, sender: 'user'};
+        setMessages((prev) => [...prev, userMessage]);
+
+        setInputTextValue('')
+
+        // OpenAI response
+        try {
+            //@ts-ignore
+            const response = await openai.chat.completions.create({
+                model: 'gpt-3.5-turbo',
+                messages: [
+                    { role: 'system', content: 'You are a helpful assistant.'},
+                    ...messages.map((msg) => ({
+                        role: msg.sender === 'user' ? 'user' : 'assistant',
+                        content: msg.content,
+                    })),
+                    { role: 'user', content: inputTextValue},
+                ],
+            })
+
+            const aiMessage: Message = {
+                id: Date.now().toString(),
+                type: 'text',
+                content: response.choices[0]?.message?.content || 'Sorry, I did not understand that...',
+                sender: 'system',
+            };
+            setMessages((prev) => [...prev, aiMessage])
+
+        } catch (error: any) {
+            console.error('Failed to send message to OpenAI', error);
+            const aiMessage: Message = { 
+                id: Date.now().toString(), 
+                type: 'text', 
+                content: "Sorry, I'm having trouble connecting to OpenAI. Please try again later.", 
+                sender: 'system'
+            }
+            setMessages((prev) => [...prev, aiMessage])
+            Alert.alert('Failed to send message to OpenAI', error.message);
+
+        }
+    }
+
     const displayChat = () => {
-        console.log("Chat Displayed")
-        setIsChatActive(false)
+        if(inputTextValue.trim().length === 0) return;
+        inputTextValue && sendMessage() 
+        setIsChatActive(true)
     }
 
     return (

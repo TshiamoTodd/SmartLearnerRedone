@@ -20,6 +20,24 @@ export const getSubjectsByGradeAndSchool = async (grade: string, school: string)
     }
 };
 
+export const getSubjectVideosBySubjectId = async (subjectId: string) => {
+    try {
+        const {data, error} = await supabase.from('SubjectVideos')
+        .select('title, description, video_url')
+        .eq('subject_id', subjectId);
+
+        if (error) {
+            console.error(error)
+            throw error;
+        }
+
+        return data;
+    } catch (error) {
+        console.log("Error fetching videos:", error);
+        throw new Error("Failed to fetch videos. Please try again later.");
+    }
+}
+
 export const analyzeImage = async (imageUri: string) => {
     try {
         if(!imageUri) {

@@ -1,17 +1,14 @@
 import { View, Text, Image } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import CustomHeader from '@/components/CustomeHeader'
 import ChatInputSection from '@/components/ChatInputSection'
 import { useMessageContext } from '@/context/MessageProvider'
+import RenderChatScreen from '@/components/RenderChatScreen'
 
 const Homework = () => {
     const {messages} = useMessageContext()
     const [isChatActive, setIsChatActive] = useState(false)
 
-    useEffect(() => {
-
-    }, [messages, isChatActive])
-    console.log(isChatActive)
 
   return (
         <View className='flex h-full w-full justify-between bg-slate-300'>
@@ -25,10 +22,10 @@ const Homework = () => {
             </View>
 
             <View className='flex-1 items-center justify-center'>
-                {isChatActive ? (
-                    <View>
-                        <Text className='text-lg'>Start a conversation with your AI teacher</Text>
-                    </View>
+                {(isChatActive || messages.length > 0) ? (
+                    <RenderChatScreen 
+                        messages={messages}
+                    />
                 ): (
                         <Image
                             source={require('@/assets/images/splash_image.png')}
@@ -38,7 +35,8 @@ const Homework = () => {
                 )}
             </View>
 
-            <ChatInputSection 
+            <ChatInputSection
+                isChatActive={isChatActive} 
                 setIsChatActive={setIsChatActive}
             />
         </View>
