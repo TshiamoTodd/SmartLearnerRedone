@@ -1,18 +1,54 @@
-import { View, Text, TextInput, TouchableOpacity, Alert, FlatList, Image } from 'react-native'
-import React, { useEffect } from 'react'
+import { View, Text, TextInput, TouchableOpacity, Alert, FlatList, Image, Linking } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import CustomHeader from '@/components/CustomeHeader'
 import { useOnboarding } from '@/context/OnboardingProvider'
-import { getSubjectVideosBySubjectId } from '@/utils'
+import { extractYouTubeVideoId, getSubjectVideosBySubjectId } from '@/utils'
 import CustomCard from '@/components/CustomCard'
-import { router } from 'expo-router'
+import { RelativePathString, router } from 'expo-router'
+import AntDesign from '@expo/vector-icons/AntDesign'
+
+interface VideoListProps {
+    videoId: string
+    videoTitle: string
+    thumbnail?: string
+    videoDescription: string
+}
 
 const VideoList = () => {
     const {activeSubject} = useOnboarding()
-    const [subjectVideos, setSubjectVideos] = React.useState<{title:string, description:string, video_url:string}[]>()
-    const [isEmpty, setIsEmpty] = React.useState(false)
+    const [subjectVideos, setSubjectVideos] = useState<{title:string, description:string, video_url:string}[]>()
+    const [isEmpty, setIsEmpty] = useState(false)
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearchComplete, setIsSearchComplete] = useState(false);
+
+    const handleSearch = async () => {
+        try {
+          // Replace with your actual YouTube Data API search implementation
+          const response = await fetch(
+            `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${searchQuery}&key=${process.env.EXPO_PUBLIC_YOUTUBE_API_KEY}`
+          )
+
+          if(response.ok) {
+            const data = await response.json();
+            console.log(data.items)
+            setIsSearchComplete(true);
+            setSearchResults(data.items);
+
+          } else {
+            console.error('Failed to search for videos:', response.status, response.statusText);
+            Alert.alert('Error', 'Failed to search for videos');
+          }
+        } catch (error) {
+          console.error('Error searching for videos:', error);
+          Alert.alert('Error', 'Failed to search for videos');
+          setSearchResults([]); 
+        }
+    }
 
     useEffect(() => {
         const fetchSubjectVideos = async () => {
+            console.log(isSearchComplete)
             try {
                 const response = await getSubjectVideosBySubjectId(activeSubject?.subjectId as string)
                 
@@ -30,6 +66,42 @@ const VideoList = () => {
         fetchSubjectVideos()
     }, [])
 
+    const databaseVideos = ({item} : { item: any }) => {
+        return (
+            <CustomCard
+                label={item.title}
+                subTitle={item.description}
+                customStyles='w-full'
+                onPressAction={() => {
+                    const videoId = extractYouTubeVideoId(item.snippet.resourceId.videoId)
+                    router.push({
+                        pathname: `/(dashboard)/subject/${activeSubject?.subjectId}/VideoPlayer` as RelativePathString,
+                        params: {videoId: videoId, videoTitle: item.title, videoDescription: item.description}
+                    })
+                }}
+            />
+        )
+    }
+
+    const searchResultsList = ({item} : { item: any }) => {
+        console.log(item.snippet.thumbnails.default.url)
+        return (
+            <CustomCard
+                label={item.snippet.channelTitle}
+                subTitle={item.snippet.title}
+                customStyles='w-full'
+                headerImage={item.snippet.thumbnails.default.url}
+                onPressAction={() => {
+                    const videoId = item.id.videoId
+                    router.push({
+                        pathname: `/(dashboard)/subject/${activeSubject?.subjectId}/VideoPlayer` as RelativePathString,
+                        params: {videoId: videoId, videoTitle: item.title, videoDescription: item.description}
+                    })
+                }}
+            />
+        )
+    }
+
 
 
     return (
@@ -40,24 +112,28 @@ const VideoList = () => {
                     showBackButton={true}
                     headerStyles='pr-3'
             />
-            <View className=' flex flex-row items-center justify-between w-full h-[100px] p-5'>
-                <TextInput
-                    placeholder='Search for a video'
-                    className='w-full p-3 rounded-full border border-[#ffffff] bg-white/5'
-                />
+            <View className="flex-row gap-4 items-center justify-between w-full p-5">
+                <View className='flex' style={{ width: '85%'}} >
+                    <TextInput
+                        style={{height: 50, borderColor: 'gray', borderWidth: 1, borderRadius: 999, paddingLeft: 10, width: '100%'}}
+                        placeholder="Search for videos"
+                        onChangeText={(text) => setSearchQuery(text)}
+                        value={searchQuery}
+                    />
+                </View >
+                <View className='bg-green-400'>
+                    <TouchableOpacity style={{padding: 10, borderRadius: 999, borderColor: 'gray', borderWidth: 1}} onPress={handleSearch}>
+                        <AntDesign name="search1" size={20} color="black" />
+                    </TouchableOpacity>
+                </View>
             </View>
             <View className='flex-1 items-center w-full'>
                 {!isEmpty ? (
                     <FlatList
-                    className='w-full p-3 h-full'
-                    data={subjectVideos}
-                    renderItem={({item}) => (
-                        <CustomCard
-                            label={item.title}
-                            subTitle={item.description}
-                            customStyles='w-full'
-                        />
-                    )}
+                        className='w-full p-3 h-full'
+                        data={isSearchComplete ? searchResults : subjectVideos}
+                        renderItem={isSearchComplete ? searchResultsList : databaseVideos}
+                        keyExtractor={(item) => item.video_url} 
                 />) : (
                     <View className='flex-1 justify-center items-center p-5'>
                         <Image

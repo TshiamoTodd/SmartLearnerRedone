@@ -6,15 +6,6 @@ module.exports = {
     "./context/**/*.{js,jsx,ts,tsx}",
     "./app/(dashboard)/subject/[id]/(quiz)/**/*.{js,jsx,ts,tsx}",
   ],
-  theme: {
-    extend: {
-      colors: {
-        green: { 500: '#10b981', 200: '#d1fae5' },
-        red: { 500: '#ef4444', 200: '#fecaca' },
-        purple: { 500: '#8b5cf6' },
-    },
-    },
-  },
   plugins: [],
 }
 
