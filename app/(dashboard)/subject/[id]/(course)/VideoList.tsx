@@ -19,6 +19,7 @@ const VideoList = () => {
     const {activeSubject} = useOnboarding()
     const [subjectVideos, setSubjectVideos] = useState<{title:string, description:string, video_url:string}[]>()
     const [isEmpty, setIsEmpty] = useState(false)
+    const videoTitle = activeSubject?.subjectName || 'Video List';
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [isSearchComplete, setIsSearchComplete] = useState(false);
@@ -68,12 +69,14 @@ const VideoList = () => {
     }, [])
 
     const databaseVideos = ({item} : { item: any }) => {
+        console.log(item.snippet.thumbnails.default.url)
         return (
-            <CustomCard
-                label={item.title}
-                subTitle={item.description}
-                customStyles='w-full'
-                onPressAction={() => {
+            <SearchCard
+                label = {item.title}
+                subTitle = {item.description}
+                customStyles = 'w-full'
+                headerImage = {item.thumbnail}
+                onPressAction = {() => {
                     const videoId = extractYouTubeVideoId(item.video_url)
                     router.push({
                         pathname: `/(dashboard)/subject/${activeSubject?.subjectId}/VideoPlayer` as RelativePathString,
@@ -96,7 +99,7 @@ const VideoList = () => {
                     const videoId = item.id.videoId
                     router.push({
                         pathname: `/(dashboard)/subject/${activeSubject?.subjectId}/VideoPlayer` as RelativePathString,
-                        params: {videoId: videoId, videoTitle: item.title, videoDescription: item.description}
+                        params: {videoId: videoId, videoTitle: item.snippet.channelTitle, videoDescription: item.snippet.title}
                     })
                 }}
             />
@@ -109,7 +112,7 @@ const VideoList = () => {
         <View className='flex-1 h-full w-full bg-slate-300'>
             <CustomHeader  
                     title={activeSubject?.subjectName as string}
-                    subtitle='Select a video to watch'
+                    subtitle={videoTitle}
                     showBackButton={true}
                     headerStyles='pr-3'
             />

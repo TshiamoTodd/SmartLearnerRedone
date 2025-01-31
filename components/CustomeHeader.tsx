@@ -7,7 +7,7 @@ import { router } from 'expo-router'
 
 const CustomHeader = ({
   title, 
-  subtitle, 
+  subtitle,
   showBackButton,
   headerStyles
 }: {

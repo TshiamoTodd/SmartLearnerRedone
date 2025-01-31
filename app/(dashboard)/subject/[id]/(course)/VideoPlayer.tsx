@@ -23,9 +23,9 @@ const VideoPlayer = () => {
                 videoId={videoId}
                 play={true}
             />
-            <View className=''>
-                <Text className='font-bold text-lg'>{videoTitle}</Text>
-                <Text>{videoDescription}</Text>
+            <View className='bg-white dark:bg-gray-800 shadow-md rounded-lg p-4 mt-4 w-11/12'>
+                <Text className='font-bold text-lg text-gray-900 dark:text-white'>{videoTitle}</Text>
+                <Text className='text-gray-700 dark:text-gray-300 mt-2'>{videoDescription}</Text>
             </View>
         </View>
     )
