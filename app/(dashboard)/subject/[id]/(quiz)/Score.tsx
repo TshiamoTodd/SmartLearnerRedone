@@ -14,9 +14,19 @@ const Score = () => {
                 style={{height: '50%', aspectRatio: 1, resizeMode: 'contain'}}
             />
             <View className='w-full flex items-center justify-center p-5'>
-                <Text className='text-lg mt-2 text-[#5470FD] text-center font-light'>
-                    Congradulations!! {user?.email?.split('@')[0]} You Scored {score} ponts
-                </Text>
+                {score === "0" || score === "10" || score === "20" ? (
+                    <Text className='text-lg mt-2 text-[#5470FD] text-center font-light'>
+                        Better luck next time! You scored {score} points.
+                    </Text>
+                ) : score === "30" || score === "40" ? (
+                    <Text className='text-lg mt-2 text-[#5470FD] text-center font-light'>
+                        Congratulations!! {user?.email?.split('@')[0]} You Scored {score} Points.
+                    </Text>
+                ) : (
+                    <Text className='text-lg mt-2 text-[#5470FD] text-center font-light'>
+                        Your score is {score} points.
+                    </Text>
+                )}
             </View>
 
             <View className='w-full flex items-center justify-center px-6'>

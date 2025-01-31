@@ -6,6 +6,7 @@ import { extractYouTubeVideoId, getSubjectVideosBySubjectId } from '@/utils'
 import CustomCard from '@/components/CustomCard'
 import { RelativePathString, router } from 'expo-router'
 import AntDesign from '@expo/vector-icons/AntDesign'
+import SearchCard from '@/components/SearchCard'
 
 interface VideoListProps {
     videoId: string
@@ -73,7 +74,7 @@ const VideoList = () => {
                 subTitle={item.description}
                 customStyles='w-full'
                 onPressAction={() => {
-                    const videoId = extractYouTubeVideoId(item.snippet.resourceId.videoId)
+                    const videoId = extractYouTubeVideoId(item.video_url)
                     router.push({
                         pathname: `/(dashboard)/subject/${activeSubject?.subjectId}/VideoPlayer` as RelativePathString,
                         params: {videoId: videoId, videoTitle: item.title, videoDescription: item.description}
@@ -86,11 +87,11 @@ const VideoList = () => {
     const searchResultsList = ({item} : { item: any }) => {
         console.log(item.snippet.thumbnails.default.url)
         return (
-            <CustomCard
+            <SearchCard
                 label={item.snippet.channelTitle}
                 subTitle={item.snippet.title}
                 customStyles='w-full'
-                headerImage={item.snippet.thumbnails.default.url}
+                headerImage={item.snippet.thumbnails.high.url}
                 onPressAction={() => {
                     const videoId = item.id.videoId
                     router.push({
