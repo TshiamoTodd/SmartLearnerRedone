@@ -1,10 +1,10 @@
-import { View, Text, Pressable, Alert, Animated, ActivityIndicator, Image, TouchableOpacity } from 'react-native'
+import { View, Text, Pressable, Alert, ActivityIndicator, Image, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { techQuizQuestions } from '@/config/questions'
 import { RelativePathString, router, useLocalSearchParams } from 'expo-router'
 import ProgressBar from '@/components/ProgressBar'
 import CustomQuizBtn from '@/components/CustumQuizBtn'
 import OpenAI from "openai";
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const Questions = () => {
 
@@ -14,10 +14,10 @@ const Questions = () => {
     const [score, setScore] = useState(0)
     const [selectedOption, setSelectedOption] = useState<string | null>(null)
     const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
-    const [quizProgress, setQuizProgress] = useState(techQuizQuestions.length)
     const [isloading, setIsLoading] = useState(true)
     const [error, setError] = useState(false)
     const [questions, setQuestions] = useState<{ question: string; options: string[]; correctAnswer: string }[]>([])
+    
 
 
     useEffect(() => {
@@ -83,14 +83,15 @@ const Questions = () => {
         generateQuiz()
     }, [])
 
-    console.log('Render CustumQuizBtn')
-    console.log('isCorrect', isCorrect)
-    console.log('selectedOption', selectedOption)
+    const length = questions.length
+    console.log({length})
 
-    const progress = (currentQuestionIndex + 1) / quizProgress
+    const progress = (currentQuestionIndex + 1) / (questions.length)
+    console.log({currentQuestionIndex})
+    console.log({progress})
 
     const handleNext = () => {
-        if(currentQuestionIndex === techQuizQuestions.length - 1) {
+        if(currentQuestionIndex === questions.length - 1) {
             router.push({
                 pathname: `/subject/${id}/Score` as RelativePathString,
                 params: {score: score, subjectName: subjectName, topic: topic}
@@ -164,10 +165,11 @@ const Questions = () => {
             </Text>
             {
                 questions[currentQuestionIndex].options.map((option, index) => (
+                    console.log({option, selectedOption, isCorrect}),
                     <TouchableOpacity
                         key={index}
                         disabled={!!selectedOption}
-                        className={`border-[#5470FD] border p-4 my-2 rounded-md ${
+                        className={`border p-4 my-2 rounded-md ${
                             selectedOption === option 
                             ? isCorrect 
                                 ? 'border-[#10b981] bg-[#d1fae5]'
@@ -186,7 +188,7 @@ const Questions = () => {
                 className='bg-[#5470FD] p-4 rounded-md mt-6'
             >
                 <Text className='text-white text-lg text-center font-bold'>
-                    {currentQuestionIndex === techQuizQuestions.length - 1 ? 'Finish' : 'Next'}
+                    {currentQuestionIndex === questions.length - 1 ? 'Finish' : 'Next'}
                 </Text>
             </TouchableOpacity>
         </View>

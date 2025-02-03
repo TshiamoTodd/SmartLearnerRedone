@@ -89,3 +89,25 @@ export const extractYouTubeVideoId = (url: string): string | null => {
     const match = url.match(videoIdRegex);
     return match ? match[1] : null;
 }
+
+export const fetchYouTubeThumbnail = async (videoId: string | null) => {
+    if (!videoId) return null;
+
+    try {
+        const response = await fetch(
+            `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${process.env.EXPO_PUBLIC_YOUTUBE_API_KEY}`
+        );
+        const data = await response.json();
+
+        if (data.items && data.items.length > 0) {
+            const thumbnails = data.items[0].snippet.thumbnails;
+
+            // Return the highest quality available
+            return thumbnails.high?.url;
+        }
+    } catch (error) {
+        console.error("Error fetching YouTube thumbnail:", error);
+    }
+
+    return null;
+};

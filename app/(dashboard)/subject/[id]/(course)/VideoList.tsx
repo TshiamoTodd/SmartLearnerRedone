@@ -2,7 +2,7 @@ import { View, Text, TextInput, TouchableOpacity, Alert, FlatList, Image, Linkin
 import React, { useEffect, useState } from 'react'
 import CustomHeader from '@/components/CustomeHeader'
 import { useOnboarding } from '@/context/OnboardingProvider'
-import { extractYouTubeVideoId, getSubjectVideosBySubjectId } from '@/utils'
+import { extractYouTubeVideoId, fetchYouTubeThumbnail, getSubjectVideosBySubjectId } from '@/utils'
 import CustomCard from '@/components/CustomCard'
 import { RelativePathString, router } from 'expo-router'
 import AntDesign from '@expo/vector-icons/AntDesign'
@@ -17,7 +17,13 @@ interface VideoListProps {
 
 const VideoList = () => {
     const {activeSubject} = useOnboarding()
-    const [subjectVideos, setSubjectVideos] = useState<{title:string, description:string, video_url:string}[]>()
+    const [subjectVideos, setSubjectVideos] = useState<
+        { 
+            title: string; 
+            description: string; 
+            video_url: string; 
+            thumbnail?: string 
+        }[]>([])
     const [isEmpty, setIsEmpty] = useState(false)
     const videoTitle = activeSubject?.subjectName || 'Video List';
     const [searchQuery, setSearchQuery] = useState('');
@@ -55,7 +61,15 @@ const VideoList = () => {
                 const response = await getSubjectVideosBySubjectId(activeSubject?.subjectId as string)
                 
                 if(response.length > 0) {
-                    setSubjectVideos(response)
+                    const updatedVideos = await Promise.all(
+                        response.map(async (video) => {
+                            const videoId = extractYouTubeVideoId(video.video_url); // Helper function to get YouTube video ID
+                            const thumbnailUrl = await fetchYouTubeThumbnail(videoId);
+                            return { ...video, thumbnail: thumbnailUrl };
+                        })
+                    );
+
+                    setSubjectVideos(updatedVideos)
                 } else {
                     setIsEmpty(true)
                     
@@ -69,13 +83,12 @@ const VideoList = () => {
     }, [])
 
     const databaseVideos = ({item} : { item: any }) => {
-        console.log(item.snippet.thumbnails.default.url)
         return (
             <SearchCard
                 label = {item.title}
                 subTitle = {item.description}
                 customStyles = 'w-full'
-                headerImage = {item.thumbnail}
+                headerImage={item.thumbnail}
                 onPressAction = {() => {
                     const videoId = extractYouTubeVideoId(item.video_url)
                     router.push({

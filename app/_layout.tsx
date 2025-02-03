@@ -1,5 +1,4 @@
 import AuthProvider from '@/context/AuthProvider';
-import { FileProvider } from '@/context/FileProvider';
 import { OnboardingProvider } from '@/context/OnboardingProvider';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';

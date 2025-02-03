@@ -17,15 +17,21 @@ const VideoPlayer = () => {
                     showBackButton={true}
                     headerStyles='pr-3'
             />
-            <YouTubePlayer
-                height={300}
-                width={400}
-                videoId={videoId}
-                play={true}
-            />
-            <View className='bg-white dark:bg-gray-800 shadow-md rounded-lg p-4 mt-4 w-11/12'>
-                <Text className='font-bold text-lg text-gray-900 dark:text-white'>{videoTitle}</Text>
-                <Text className='text-gray-700 dark:text-gray-300 mt-2'>{videoDescription}</Text>
+            <View className='flex items-center'>
+                <View className='w-full'>
+                    <YouTubePlayer
+                        height={230}
+                        width={400}
+                        videoId={videoId}
+                        play={false}
+                    />
+                </View>
+                <View style={{width: '100%'}}>
+                    <View className='bg-white w-full shadow-md rounded-lg p-4'>
+                        <Text className='font-bold text-lg text-gray-900 dark:text-white'>{videoTitle}</Text>
+                        <Text className='text-gray-700 dark:text-gray-300 mt-2'>{videoDescription}</Text>
+                    </View>
+                </View>
             </View>
         </View>
     )
