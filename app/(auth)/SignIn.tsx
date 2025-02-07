@@ -6,6 +6,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { supabase } from '@/lib/supabase';
 import { useAuthContext } from '@/context/AuthProvider';
 import * as AuthSession from 'expo-auth-session';
+import * as Linking from 'expo-linking';
 
 AppState.addEventListener('change', (state) => {
     if (state === 'active') {
@@ -24,7 +25,7 @@ const SignIn = () => {
     })
 
     const redirectUri = AuthSession.makeRedirectUri({
-        
+        scheme: 'myapp',
     });
 
     const signInWithGoogle = async () => {
@@ -37,8 +38,9 @@ const SignIn = () => {
 
         if(error){
             console.error('Error with OAuth sign-in', error);
-        } else {
-            console.log('OAth sign-in initiated, data', data);
+            return;
+        } else if (data?.url) {
+            await Linking.openURL(data.url);
         }
     };
 
