@@ -5,6 +5,7 @@ import { Href, router } from 'expo-router'
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { supabase } from '@/lib/supabase';
 import { useAuthContext } from '@/context/AuthProvider';
+import * as AuthSession from 'expo-auth-session';
 
 AppState.addEventListener('change', (state) => {
     if (state === 'active') {
@@ -21,6 +22,25 @@ const SignIn = () => {
         email: '',
         password: ''
     })
+
+    const redirectUri = AuthSession.makeRedirectUri({
+        
+    });
+
+    const signInWithGoogle = async () => {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: redirectUri,
+            },
+        });
+
+        if(error){
+            console.error('Error with OAuth sign-in', error);
+        } else {
+            console.log('OAth sign-in initiated, data', data);
+        }
+    };
 
     const signInWithSupabase = async () => {
         try {
@@ -143,6 +163,30 @@ const SignIn = () => {
                         ): (
                             <Text className='text-xl font-bold text-white text-center'>Login</Text>
                         )}
+                    </TouchableOpacity>
+                </Animated.View>
+
+                <Animated.View
+                    className='w-full'
+                    entering={FadeInDown.delay(400).duration(1000).springify()}
+                >
+                    <TouchableOpacity 
+                        className='bg-white shadow-md shadow-zinc-300 rounded-full py-4 mt-5'
+                        onPress={signInWithGoogle}
+                    >
+                    <View className='flex flex-row items-center justify-center'>
+                        <Image
+                            source={require('@/assets/images/google.png')}
+                            className='w-8 h-8'
+                            resizeMode='contain'
+                        />
+                            {isLoading ? (
+                                <ActivityIndicator size='large' color='white'/>
+                            ): (
+                                <Text className='text-lg font-rubik-medium text-black-300 ml-2'>Continue With Google</Text>
+                            )}
+                    </View>
+
                     </TouchableOpacity>
                 </Animated.View>
 

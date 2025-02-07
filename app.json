@@ -9,14 +9,25 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "$(PRODUCT_NAME) requires access to your camera",
+        "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) requires access to your microphone"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/splash_icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.tshiamotodd.sidetest"
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_MEDIA_LOCATION"
+      ],
+      "package": "com.machabakaizer.smart_learner"
     },
     "web": {
       "bundler": "metro",
@@ -59,7 +70,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "b6d6ae14-a6d0-402a-94cd-9fbb751e8024"
+        "projectId": "d704aeb1-ec9c-4974-87aa-0a6441a43302"
       }
     }
   }
