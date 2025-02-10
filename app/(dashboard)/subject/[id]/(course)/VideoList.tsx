@@ -122,14 +122,14 @@ const VideoList = () => {
 
 
     return (
-        <View className='flex-1 h-full w-full bg-slate-300'>
+        <View style={{flex: 1, height: '100%', width: '100%', backgroundColor: '#cbd5e1'}}>
             <CustomHeader  
                     title={activeSubject?.subjectName as string}
                     subtitle={videoTitle}
                     showBackButton={true}
                     headerStyles='pr-3'
             />
-            <View className="flex-row gap-4 items-center justify-between w-full p-5">
+            <View style={{flexDirection: 'row', gap: 16, alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: 20}}>
                 <View className='flex' style={{ width: '85%'}} >
                     <TextInput
                         style={{height: 50, borderColor: 'gray', borderWidth: 1, borderRadius: 999, paddingLeft: 10, width: '100%'}}
@@ -161,8 +161,7 @@ const VideoList = () => {
                             Ohh No!, There are no videos available for this subject, Try again later.
                         </Text>
                         <TouchableOpacity 
-                            style={{backgroundColor: '#5470FD'}}
-                            className='p-4 mt-4 rounded-full w-full'
+                            style={{backgroundColor: '#5470FD', padding: 16, borderRadius: 999, width: '100%'}}
                             onPress={() => router.back()}
                         >
                             <Text className='text-white text-center text-md font-medium'>

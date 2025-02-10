@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 import React from 'react'
 import { useLocalSearchParams } from 'expo-router'
 import YouTubePlayer from 'react-native-youtube-iframe'
@@ -10,7 +10,7 @@ const VideoPlayer = () => {
     const {videoId, videoTitle, videoDescription} = useLocalSearchParams<{videoId:string, videoTitle:string, videoDescription:string}>()
     console.log(videoId, videoTitle, videoDescription)
     return (
-        <View className='flex items-center'>
+        <View style={{flex: 1, alignItems: 'center', backgroundColor: '#cbd5e1'}}>
             <CustomHeader  
                     title={activeSubject?.subjectName as string}
                     subtitle={videoTitle}
@@ -26,8 +26,8 @@ const VideoPlayer = () => {
                         play={false}
                     />
                 </View>
-                <View style={{width: '100%'}}>
-                    <View className='bg-white w-full shadow-md rounded-lg p-4'>
+                <View className='w-full flex'>
+                    <View className='flex bg-white p-2 rounded-md'>
                         <Text className='font-bold text-lg text-gray-900 dark:text-white'>{videoTitle}</Text>
                         <Text className='text-gray-700 dark:text-gray-300 mt-2'>{videoDescription}</Text>
                     </View>
@@ -38,3 +38,13 @@ const VideoPlayer = () => {
 }
 
 export default VideoPlayer
+
+const styles = StyleSheet.create({
+    shadowMd: {
+      shadowColor: 'rgba(0, 0, 0, 0.1)', // Equivalent to rgb(0 0 0 / 0.1)
+      shadowOffset: { width: 0, height: 4 }, // 0 4px
+      shadowOpacity: 0.1, // Controls shadow transparency
+      shadowRadius: 4.65, // Blurring effect
+      elevation: 6, // Android equivalent
+    },
+  });

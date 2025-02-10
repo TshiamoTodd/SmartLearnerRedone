@@ -54,6 +54,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@twstyled/babel-preset": "^3.2.4",
     "@types/jest": "^29.5.12",
     "@types/react": "~18.3.12",
     "@types/react-test-renderer": "^18.3.0",

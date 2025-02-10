@@ -2,9 +2,7 @@ import { View, Text, Pressable, Alert, ActivityIndicator, Image, TouchableOpacit
 import React, { useEffect, useState } from 'react'
 import { RelativePathString, router, useLocalSearchParams } from 'expo-router'
 import ProgressBar from '@/components/ProgressBar'
-import CustomQuizBtn from '@/components/CustumQuizBtn'
 import OpenAI from "openai";
-import { SafeAreaView } from 'react-native-safe-area-context'
 
 const Questions = () => {
 
@@ -152,8 +150,8 @@ const Questions = () => {
     }
 
     return (
-        <View className='mt-2 p-4'>
-            <View className='flex-row mb-4'>
+        <View style={{marginTop: 8, padding: 16}}>
+            <View style={{flexDirection: 'row', marginBottom: 16}}>
                 <ProgressBar
                     progress={progress}
                     height={25}
@@ -169,13 +167,24 @@ const Questions = () => {
                     <TouchableOpacity
                         key={index}
                         disabled={!!selectedOption}
-                        className={`border p-4 my-2 rounded-md ${
-                            selectedOption === option 
-                            ? isCorrect 
-                                ? 'border-[#10b981] bg-[#d1fae5]'
-                                : 'border-[#ef4444] bg-[#fecaca]'
-                                : 'border-[#5470FD]'
-                        }`}
+
+                        style={{
+                            padding: 16,
+                            borderRadius: 6,
+                            borderWidth: 1,
+                            marginTop: 8,
+                            marginBottom: 8,
+                            borderColor: selectedOption === option 
+                                ? isCorrect 
+                                    ? '#10b981'
+                                    : '#ef4444'
+                                : '#5470FD',
+                            backgroundColor: selectedOption === option 
+                                ? isCorrect 
+                                    ? '#d1fae5'
+                                    : '#fecaca'
+                                : 'white'
+                        }}
                         onPress={() => handleOptionPress(option)}
                     >   
                         <Text className='text-md'>{option}</Text>
@@ -186,13 +195,16 @@ const Questions = () => {
             <TouchableOpacity 
                 onPress={handleNext}
                 className='bg-[#5470FD] p-4 rounded-md mt-6'
+                style={{padding: 16, borderRadius: 6, backgroundColor: '#5470FD'}}
             >
-                <Text className='text-white text-lg text-center font-bold'>
+                <Text style={{color: 'white', fontSize: 18, lineHeight: 28, textAlign: 'center', fontWeight: '700'}}>
                     {currentQuestionIndex === questions.length - 1 ? 'Finish' : 'Next'}
                 </Text>
             </TouchableOpacity>
         </View>
     )
 }
+
+
 
 export default Questions

@@ -9,7 +9,7 @@ const StartQuiz = () => {
     const {subjectName, topic, id} = useLocalSearchParams()
 
     return (
-        <View className='flex-1 h-full w-full bg-slate-300'>
+        <View style={{flex: 1, height: '100%', width: '100%', backgroundColor: '#cbd5e1'}}>
             <CustomHeader
                 title='Start Quiz'
                 subtitle={subjectName as string}
@@ -25,7 +25,7 @@ const StartQuiz = () => {
                     }}
                 />
 
-            <View className='w-full flex p-5'>
+            <View style={{width: '100%', display: 'flex', padding: 20}}>
                 <Text className='text-2xl text-center text-[#5470FD] mb-3'>Instructions</Text>
                 <Text className='text-center mb-2 font-light text-md'>
                     {topic}
@@ -43,9 +43,9 @@ const StartQuiz = () => {
                 </View>
             </View>
 
-            <View className='w-full flex items-center justify-center'>
+            <View style={{width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                 <Pressable
-                    style={{ backgroundColor: '#5470FD', paddingHorizontal: 10, paddingVertical: 20, borderRadius: 999, width: '50%' }}
+                    style={{ backgroundColor: '#5470FD', paddingHorizontal: 10, paddingVertical: 15, borderRadius: 999, width: '50%' }}
                     onPress={() => router.push({
                         pathname: `/subject/${id}/Questions` as RelativePathString,
                         params: { topic: topic }

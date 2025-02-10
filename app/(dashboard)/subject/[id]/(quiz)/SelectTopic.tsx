@@ -111,13 +111,13 @@ const SelectTopic = () => {
     }
 
     return (
-        <View className='flex h-full w-full bg-slate-300 p-0'>
+        <View style={{flex: 1, height: '100%', width: '100%', backgroundColor: "#cbd5e1", padding: 0}}>
             <CustomHeader 
                 title={activeSubject?.subjectName as string}
                 subtitle='Please select a topic'
                 showBackButton={true}
             />
-            <ScrollView className='h-full p-5 pb-3'>
+            <ScrollView style={{height: '100%', padding: 15, paddingBottom: 5}}>
                 {topics.map((topic, index) => (
                     <CustomCard
                         key={index}

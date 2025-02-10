@@ -1,17 +1,46 @@
-import { View, Text, Pressable, Image, TouchableOpacity, Dimensions } from 'react-native'
-import React from 'react'
+import { View, Text, Pressable, Image, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { Href, Redirect, router } from 'expo-router'
 import { useAuthContext } from '@/context/AuthProvider';
+import { supabase } from '@/lib/supabase';
 
 const Index = () => {
     const { width, height } = Dimensions.get('window');
-    const { isAuthenticated } = useAuthContext()
+    const { isAuthenticated, setUsername, user } = useAuthContext()
+    const [isLoading, setIsLoading] = useState(false)
 
-    if (isAuthenticated) {
-      return <Redirect 
-          href={'/(dashboard)/(home)/Home' as Href} 
-      />
+    
+
+    useEffect(() => {
+      setIsLoading(true)
+      const fetchUser = async () => {
+        const {data: userData, error: userError} = await supabase
+        .from('User')
+        .select('username')
+        .eq('email', user?.email)
+        .single()
+  
+        if(userData){
+          setUsername!(userData?.username.toString())
+          router.push('/(dashboard)/(home)/Home' as Href)
+          setIsLoading(false)
+        }
+        return
+      }
+
+      if(isAuthenticated){
+        fetchUser()
+      }
+    }, [])
+
+    if(isLoading){
+      return (
+        <View className='flex-1 items-center justify-center'>
+          <ActivityIndicator size='large' color='purple' />
+        </View>
+      )
     }
+
     return (
       <View className="flex h-full items-center justify-between py-3 pb-10 bg-slate-100">
         {/* Header Section */}
