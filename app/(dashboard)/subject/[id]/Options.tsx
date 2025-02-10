@@ -25,17 +25,23 @@ const Options = () => {
                         subTitle='Access all courses for this subject'
                         onPressAction={() => {router.push(`/(dashboard)/subject/${id}/VideoList` as Href)}}
                     />
-                     <CustomCard 
+                    <CustomCard 
                         label='Homework'
                         headingStyle='text-lg'
                         subTitle='Access all homework for this subject'
                         onPressAction={() => {router.push(`/(dashboard)/subject/${id}/Homework` as Href)}}
                     />
-                     <CustomCard 
+                    <CustomCard 
                         label='Quiz'
                         headingStyle='text-lg'
                         subTitle='Access all quizzes for this subject'
                         onPressAction={() => {router.push(`/(dashboard)/subject/${id}/SelectTopic` as Href)}} 
+                    />
+                    <CustomCard 
+                        label='Past Question Papers'
+                        headingStyle='text-lg'
+                        subTitle='Access all past question papers for this subject'
+                        onPressAction={() => {router.push(`/(dashboard)/subject/${id}/GradeCheck` as Href)}} 
                     />
                 </View>
             </ScrollView>
