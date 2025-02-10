@@ -13,16 +13,26 @@ const Index = () => {
 
     useEffect(() => {
       setIsLoading(true)
+      console.log('isAuthenticated', isAuthenticated)
       const fetchUser = async () => {
+        console.log('fetchUser', user)
         const {data: userData, error: userError} = await supabase
         .from('User')
         .select('username')
         .eq('email', user?.email)
         .single()
+
+        if(userError) {
+          console.log('userError', userError)
+          setIsLoading(false)
+        }
   
         if(userData){
           setUsername!(userData?.username.toString())
           router.push('/(dashboard)/(home)/Home' as Href)
+          setIsLoading(false)
+        } else {
+          console.log('userError', userError)
           setIsLoading(false)
         }
         return
@@ -30,6 +40,8 @@ const Index = () => {
 
       if(isAuthenticated){
         fetchUser()
+      } else {
+        setIsLoading(false)
       }
     }, [])
 
