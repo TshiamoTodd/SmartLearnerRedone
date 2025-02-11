@@ -49,12 +49,11 @@ const GradeCheck = () => {
                         grade: "Grade "+data.grade,
                         subject: activeSubject?.subjectName,
                     }
-                    const actualGrade = "Grade " + grade
                     router.replace({
                         
                         pathname: `/(dashboard)/subject/${id}/SelectYear` as RelativePathString,
                         params: {
-                            grade: data.grade,
+                            grade: `Grade ${data.grade}`,
                             subject: activeSubject?.subjectName,
                         }
                     })
@@ -102,11 +101,10 @@ const GradeCheck = () => {
             }
 
             if(data) {
-                const actualGrade = "Grade " + grade
                 router.replace({
                     pathname: `/(dashboard)/subject/${id}/SelectYear` as RelativePathString,
                     params: {
-                        grade: actualGrade,
+                        grade: `Grade ${grade}`,
                         subject: activeSubject?.subjectName,
                     }
                 })
