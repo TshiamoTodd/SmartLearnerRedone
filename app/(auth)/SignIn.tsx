@@ -25,21 +25,28 @@ const SignIn = () => {
     })
 
     const redirectUri = AuthSession.makeRedirectUri({
-        scheme: 'myapp',
+        scheme: 'com.machabakaizer.smart_learner',
     });
 
     const signInWithGoogle = async () => {
+        console.log("Starting Sign up")
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: redirectUri,
+                redirectTo: `${redirectUri}Home`,
             },
         });
+
+        console.log(data)
+        console.log({redirectUri})
 
         if(error){
             console.error('Error with OAuth sign-in', error);
             return;
         } else if (data?.url) {
+            console.log({data})
+            console.log("Start redirect")
+            console.log(`${redirectUri}Home`)
             await Linking.openURL(data.url);
         }
     };
@@ -66,6 +73,7 @@ const SignIn = () => {
                     console.log(userError)
                 }
                 setUsername!(userData?.username)
+                console.log(redirectUri);
             }
 
             if (error) {
@@ -193,16 +201,6 @@ const SignIn = () => {
                     </TouchableOpacity>
                 </Animated.View>
 
-                <Animated.View
-                    className="flex-row justify-center"
-                    entering={FadeInDown.delay(600).duration(1000).springify()}
-                >
-                    <TouchableOpacity>
-                    <Text className='text-sky-600'>Forgot Password?</Text>
-                    </TouchableOpacity>
-                    
-                </Animated.View>
-
                 <Animated.View 
                     className='flex-row justify-center'
                     entering={FadeInDown.delay(600).duration(1000).springify()}
@@ -214,6 +212,18 @@ const SignIn = () => {
                         }}
                     >
                         <Text className='text-sky-600'>Sign Up</Text>
+                    </TouchableOpacity>
+                </Animated.View>
+                <Animated.View 
+                    className='flex-row justify-center'
+                    entering={FadeInDown.delay(600).duration(1000).springify()}
+                >
+                    <TouchableOpacity
+                        onPress={() => {
+                            router.push('/(auth)/ForgotPassword' as Href)
+                        }}
+                    >
+                        <Text className='text-sky-600'>Forgot Password?</Text>
                     </TouchableOpacity>
                 </Animated.View>
             </View>
