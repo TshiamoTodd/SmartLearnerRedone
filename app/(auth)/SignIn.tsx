@@ -33,7 +33,7 @@ const SignIn = () => {
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: `${redirectUri}Home`,
+                redirectTo: redirectUri,
             },
         });
 
@@ -46,7 +46,7 @@ const SignIn = () => {
         } else if (data?.url) {
             console.log({data})
             console.log("Start redirect")
-            console.log(`${redirectUri}Home`)
+            console.log(`${redirectUri}`)
             await Linking.openURL(data.url);
         }
     };
