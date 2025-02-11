@@ -5,6 +5,8 @@ import { Href, router } from 'expo-router'
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { supabase } from '@/lib/supabase';
 import { useAuthContext } from '@/context/AuthProvider';
+import * as AuthSession from 'expo-auth-session';
+import * as Linking from 'expo-linking';
 
 AppState.addEventListener('change', (state) => {
     if (state === 'active') {
@@ -23,6 +25,26 @@ const SignUp = () => {
         password: '',
         confirmPassword: ''
     })
+
+    const redirectUri = AuthSession.makeRedirectUri({
+        scheme: 'myapp',
+    });
+
+    const signInWithGoogle = async () => {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: redirectUri,
+            },
+        });
+
+        if(error){
+            console.error('Error with OAuth sign-in', error);
+            return;
+        } else if (data?.url) {
+            await Linking.openURL(data.url);
+        }
+    };
 
     const onSignUpWithSupabase = async () => {
         try {
@@ -104,6 +126,31 @@ const SignUp = () => {
             </View>
             {/* Form */}
             <View className='flex items-center mx-4 space-y-4 mt-6'>
+
+            <Animated.View
+                    className='w-full'
+                    entering={FadeInDown.delay(400).duration(1000).springify()}
+                >
+                    <TouchableOpacity 
+                        className='bg-white shadow-md shadow-zinc-300 rounded-full py-4 mt-5'
+                        onPress={signInWithGoogle}
+                    >
+                    <View className='flex flex-row items-center justify-center'>
+                        <Image
+                            source={require('@/assets/images/google.png')}
+                            className='w-8 h-8'
+                            resizeMode='contain'
+                        />
+                            {isLoading ? (
+                                <ActivityIndicator size='large' color='white'/>
+                            ): (
+                                <Text className='text-lg font-rubik-medium text-black-300 ml-2'>Continue With Google</Text>
+                            )}
+                    </View>
+
+                    </TouchableOpacity>
+                </Animated.View>
+
                 <Animated.View 
                     entering={FadeInDown.delay(200).duration(1000).springify()}
                     className='flex-row items-center border border-slate-300 gap-x-2 bg-black/5 p-5 rounded-full w-full'

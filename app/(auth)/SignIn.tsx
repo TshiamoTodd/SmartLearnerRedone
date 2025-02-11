@@ -25,21 +25,28 @@ const SignIn = () => {
     })
 
     const redirectUri = AuthSession.makeRedirectUri({
-        scheme: 'myapp',
+        scheme: 'com.machabakaizer.smart_learner',
     });
 
     const signInWithGoogle = async () => {
+        console.log("Starting Sign up")
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: redirectUri,
+                redirectTo: `${redirectUri}Home`,
             },
         });
+
+        console.log(data)
+        console.log({redirectUri})
 
         if(error){
             console.error('Error with OAuth sign-in', error);
             return;
         } else if (data?.url) {
+            console.log({data})
+            console.log("Start redirect")
+            console.log(`${redirectUri}Home`)
             await Linking.openURL(data.url);
         }
     };
@@ -66,6 +73,7 @@ const SignIn = () => {
                     console.log(userError)
                 }
                 setUsername!(userData?.username)
+                console.log(redirectUri);
             }
 
             if (error) {
@@ -105,7 +113,7 @@ const SignIn = () => {
         </View>
 
         {/* Titile and form */}
-        <View className='h-full w-full flex justify-around pt-40 pb-10'>
+        <View className='h-full w-full flex justify-around pt-52 pb-10'>
             {/* Title */}
             <View className='flex items-center'>
                 <Animated.Text
@@ -123,6 +131,31 @@ const SignIn = () => {
             </View>
             {/* Form */}
             <View className='flex items-center mx-4 space-y-4'>
+
+            <Animated.View
+                    className='w-full'
+                    entering={FadeInDown.delay(400).duration(1000).springify()}
+                >
+                    <TouchableOpacity 
+                        className='bg-white shadow-md shadow-zinc-300 rounded-full py-4 mt-5'
+                        onPress={signInWithGoogle}
+                    >
+                    <View className='flex flex-row items-center justify-center'>
+                        <Image
+                            source={require('@/assets/images/google.png')}
+                            className='w-8 h-8'
+                            resizeMode='contain'
+                        />
+                            {isLoading ? (
+                                <ActivityIndicator size='large' color='white'/>
+                            ): (
+                                <Text className='text-lg font-rubik-medium text-black-300 ml-2'>Continue With Google</Text>
+                            )}
+                    </View>
+
+                    </TouchableOpacity>
+                </Animated.View>
+
                 <Animated.View 
                     entering={FadeInDown.duration(1000).springify()}
                     className='flex-row items-center border border-slate-300 gap-x-2 bg-black/5 p-5 rounded-full w-full'
@@ -168,30 +201,6 @@ const SignIn = () => {
                     </TouchableOpacity>
                 </Animated.View>
 
-                <Animated.View
-                    className='w-full'
-                    entering={FadeInDown.delay(400).duration(1000).springify()}
-                >
-                    <TouchableOpacity 
-                        className='bg-white shadow-md shadow-zinc-300 rounded-full py-4 mt-5'
-                        onPress={signInWithGoogle}
-                    >
-                    <View className='flex flex-row items-center justify-center'>
-                        <Image
-                            source={require('@/assets/images/google.png')}
-                            className='w-8 h-8'
-                            resizeMode='contain'
-                        />
-                            {isLoading ? (
-                                <ActivityIndicator size='large' color='white'/>
-                            ): (
-                                <Text className='text-lg font-rubik-medium text-black-300 ml-2'>Continue With Google</Text>
-                            )}
-                    </View>
-
-                    </TouchableOpacity>
-                </Animated.View>
-
                 <Animated.View 
                     className='flex-row justify-center'
                     entering={FadeInDown.delay(600).duration(1000).springify()}
@@ -203,6 +212,18 @@ const SignIn = () => {
                         }}
                     >
                         <Text className='text-sky-600'>Sign Up</Text>
+                    </TouchableOpacity>
+                </Animated.View>
+                <Animated.View 
+                    className='flex-row justify-center'
+                    entering={FadeInDown.delay(600).duration(1000).springify()}
+                >
+                    <TouchableOpacity
+                        onPress={() => {
+                            router.push('/(auth)/ForgotPassword' as Href)
+                        }}
+                    >
+                        <Text className='text-sky-600'>Forgot Password?</Text>
                     </TouchableOpacity>
                 </Animated.View>
             </View>
