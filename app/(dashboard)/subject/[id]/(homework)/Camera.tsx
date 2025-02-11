@@ -51,6 +51,7 @@ const CameraScreen = () => {
 
         if(ocrContent) {
           setocrFileContents(ocrContent.responses[0].textAnnotations[0].description)
+          router.dismissAll()
           router.push(`/(dashboard)/subject/${activeSubject?.subjectId}/OCRConfirm` as RelativePathString)
         } else if(ocrContent.error) {
           Alert.alert("OCR Error", ocrContent.error)

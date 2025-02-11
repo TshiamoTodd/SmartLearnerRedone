@@ -139,7 +139,10 @@ const Questions = () => {
                 </Text>
                 <TouchableOpacity 
                     className='bg-[#5470FD] p-4 mt-4 rounded-full w-full'
-                    onPress={() => router.push(`/subject/${id}/SelectTopic` as RelativePathString)}
+                    onPress={() => {
+                        router.dismissAll()
+                        router.push(`/subject/${id}/SelectTopic` as RelativePathString)
+                    }}
                 >
                     <Text className='text-white text-center text-md font-bold'>
                         Try Again

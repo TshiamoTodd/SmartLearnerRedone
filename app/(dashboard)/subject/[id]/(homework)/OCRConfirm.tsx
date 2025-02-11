@@ -17,6 +17,7 @@ const OCRConfirm = () => {
         setocrFileContents(inputText)
         setInputText("")
 
+        router.dismissAll()
         router.replace(`/(dashboard)/subject/${activeSubject?.subjectId}/Homework` as Href)
     }
 
@@ -24,6 +25,7 @@ const OCRConfirm = () => {
         setocrFileContents('')
         setInputText("")
 
+        router.dismissAll()
         router.replace(`/(dashboard)/subject/${activeSubject?.subjectId}/Homework` as Href)
     }
 

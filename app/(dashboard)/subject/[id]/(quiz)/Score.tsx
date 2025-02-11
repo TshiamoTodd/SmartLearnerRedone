@@ -32,10 +32,13 @@ const Score = () => {
             <View className='w-full flex items-center justify-center px-6'>
                 <Pressable 
                     className='bg-[#5470FD] p-4 mt-4 rounded-full w-full'
-                    onPress={() => router.replace({
-                        pathname: `/subject/${id}/SelectTopic` as RelativePathString,
-                        params: {subjectName: subjectName, topic: topic}
-                    })}
+                    onPress={() => {
+                        router.dismissAll()
+                        router.replace({
+                            pathname: `/subject/${id}/SelectTopic` as RelativePathString,
+                            params: {subjectName: subjectName, topic: topic}
+                    })
+                }}
                 >
                     <Text className='text-white text-md text-center font-light'>
                         Play Again
