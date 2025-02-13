@@ -25,7 +25,7 @@ const SignIn = () => {
     })
 
     const redirectUri = AuthSession.makeRedirectUri({
-        scheme: 'com.machabakaizer.smart_learner',
+        scheme: 'com.machabakaizer.smart_learner://SignUp',
     });
 
     const signInWithGoogle = async () => {

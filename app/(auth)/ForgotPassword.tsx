@@ -26,7 +26,7 @@ const ForgotPasswordPage = () => {
       return;
     }
       // Define the redirect URL 
-      const redirectUrl = "com.machabakaizer.smart_learner://updatepassword";
+      const redirectUrl = "com.machabakaizer.smart_learner:/updatepassword";
 
       // Send password reset link to the user's email with redirect URL
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
