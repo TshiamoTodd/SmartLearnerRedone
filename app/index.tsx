@@ -15,7 +15,6 @@ const Index = () => {
       setIsLoading(true)
       console.log('isAuthenticated', isAuthenticated)
       const fetchUser = async () => {
-        console.log('fetchUser', user)
         const {data: userData, error: userError} = await supabase
         .from('User')
         .select('username')

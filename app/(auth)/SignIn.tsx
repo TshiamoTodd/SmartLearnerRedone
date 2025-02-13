@@ -1,10 +1,13 @@
 import { View, Text, TextInput, Image, StatusBar, TouchableOpacity, Alert, ActivityIndicator, AppState } from 'react-native'
 import React, { useState } from 'react'
-import Animated, { FadeIn, FadeInDown, FadeInUp, FadeOut } from 'react-native-reanimated'
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated'
 import { Href, router } from 'expo-router'
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { supabase } from '@/lib/supabase';
 import { useAuthContext } from '@/context/AuthProvider';
+import { makeRedirectUri } from "expo-auth-session";
+import * as QueryParams from "expo-auth-session/build/QueryParams";
+import * as WebBrowser from "expo-web-browser";
 
 AppState.addEventListener('change', (state) => {
     if (state === 'active') {
@@ -12,7 +15,35 @@ AppState.addEventListener('change', (state) => {
     } else {
       supabase.auth.stopAutoRefresh()
     }
-  })
+})
+
+WebBrowser.maybeCompleteAuthSession(); // required for web only
+const redirectTo = makeRedirectUri({
+    scheme: 'com.tshiamotodd.sidetest',
+});
+
+const createSessionFromUrl = async (url: string) => {
+    const { params, errorCode } = QueryParams.getQueryParams(url);
+  
+    if (errorCode) throw new Error(errorCode);
+    const { access_token, refresh_token } = params;
+
+    console.log({access_token, refresh_token})
+  
+    if (!access_token) return;
+  
+    const { data, error } = await supabase.auth.setSession({
+      access_token,
+      refresh_token,
+    });
+    if (error) throw error;
+    console.log("Session data: ",{data})
+    console.log("Session user: ", data.session?.user)
+    return data.session;
+};
+
+
+  
 
 const SignIn = () => {
     const {setUsername} = useAuthContext()
@@ -21,6 +52,73 @@ const SignIn = () => {
         email: '',
         password: ''
     })
+
+    const performOAuth = async () => {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo: `${redirectTo}SignIn`,
+            skipBrowserRedirect: true,
+          },
+        });
+    
+        if (error) throw error;
+      
+        if(data) {
+            console.log("Data from signInWithOAuth: ", {data})
+    
+            const res = await WebBrowser.openAuthSessionAsync(
+                data?.url ?? "",
+                redirectTo,
+            );
+    
+    
+            if (res.type === "success") {
+                setIsLoading(true)
+                console.log("Response from browser",{res})
+    
+                const { url } = res;
+                console.log("Browser respose url", {url})
+                const session = await createSessionFromUrl(url);
+    
+                console.log("Session user: ", session?.user.id)
+    
+                if(session?.user) {
+                    const {data: userData, error: userError} = await supabase
+                    .from('User')
+                    .select('username')
+                    .eq('id', session.user.id)
+                    .single()
+    
+                    console.log({userData})
+    
+                    if(userData == null) {
+                        const {data: createUserData, error: userError} = await supabase.from('User').insert([{
+                            id: session.user.id,
+                            email: session.user.email,
+                            username: session.user.user_metadata.name
+                        }]).select()
+        
+                        console.log(createUserData)
+        
+                        setUsername!(session.user.user_metadata.name)
+
+                        if(createUserData) {
+                            setIsLoading(false)
+                            router.push('/(onboarding)/School' as Href)
+                        }
+                    } else {
+                        setUsername!(userData?.username)
+                        setIsLoading(false)
+                        router.dismissAll()
+                        router.replace('/Home')
+                    }
+                
+                }
+            }
+        }
+      
+    };
 
     const signInWithSupabase = async () => {
         try {
@@ -61,6 +159,7 @@ const SignIn = () => {
             setIsLoading(false)
         }
     }
+
     return (
         <View className='bg-white h-full w-full'>
             <StatusBar barStyle={'light-content'} />
@@ -83,7 +182,7 @@ const SignIn = () => {
         </View>
 
         {/* Titile and form */}
-        <View className='h-full w-full flex justify-around pt-40 pb-10'>
+        <View className='h-full w-full flex justify-around pt-52 pb-10'>
             {/* Title */}
             <View className='flex items-center'>
                 <Animated.Text
@@ -101,6 +200,31 @@ const SignIn = () => {
             </View>
             {/* Form */}
             <View className='flex items-center mx-4 space-y-4'>
+
+                <Animated.View
+                    className='w-full'
+                    entering={FadeInDown.delay(400).duration(1000).springify()}
+                >
+                    <TouchableOpacity 
+                        className='bg-white shadow-md shadow-zinc-300 rounded-full py-4 mt-5'
+                        onPress={performOAuth}
+                    >
+                    <View className='flex flex-row items-center justify-center'>
+                        <Image
+                            source={require('@/assets/images/google.png')}
+                            className='w-8 h-8'
+                            resizeMode='contain'
+                        />
+                            {isLoading ? (
+                                <ActivityIndicator size='large' color='white'/>
+                            ): (
+                                <Text className='text-lg font-rubik-medium text-black-300 ml-2'>Continue With Google</Text>
+                            )}
+                    </View>
+
+                    </TouchableOpacity>
+                </Animated.View>
+
                 <Animated.View 
                     entering={FadeInDown.duration(1000).springify()}
                     className='flex-row items-center border border-slate-300 gap-x-2 bg-black/5 p-5 rounded-full w-full'
@@ -166,7 +290,3 @@ const SignIn = () => {
 }
 
 export default SignIn
-
-function lowercase(email: string) {
-    throw new Error('Function not implemented.');
-}

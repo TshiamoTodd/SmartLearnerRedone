@@ -9,7 +9,7 @@ import { Href, router } from 'expo-router'
 import { getSubjectsByGradeAndSchool } from '@/utils'
 
 const Home = () => {
-  const {user, username } = useAuthContext();
+  const {user, username, isAuthenticated} = useAuthContext();
   const {
     gradeRange, 
     schoolLevel, 
@@ -41,7 +41,7 @@ const Home = () => {
   
         if (onboardingError) {
           console.error(onboardingError);
-          Alert.alert('Error', onboardingError.message);
+          Alert.alert('Onboarding Error', onboardingError.message);
           return;
         }
   

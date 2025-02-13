@@ -39,16 +39,13 @@ const GradeCheck = () => {
             try {
                 setIsLoading(true)
                 const {data, error} = await supabase.from('Onboarding').select('grade').eq('user_id', userId).single()
-                if(error) {
+                if(data?.grade == null) {
                     setIsLoading(false)
+                    return
                 }
 
                 if(data) {
                     setIsLoading(false)
-                    const pdfData = {
-                        grade: "Grade "+data.grade,
-                        subject: activeSubject?.subjectName,
-                    }
                     router.replace({
                         
                         pathname: `/(dashboard)/subject/${id}/SelectYear` as RelativePathString,

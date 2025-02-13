@@ -1,4 +1,4 @@
-import { View, Text, FlatList, Alert } from 'react-native'
+import { View, Text, FlatList, Alert, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import CustomHeader from '@/components/CustomeHeader'
 import { RelativePathString, router, useLocalSearchParams } from 'expo-router'
@@ -10,10 +10,12 @@ const ListPapers = () => {
   const {year, grade} = useLocalSearchParams()
   const {activeSubject} = useOnboarding()
   const [files, setFiles] = useState<{filename:string, path:string, url:string}[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
       const listFilesInFolder = async () => {
         try {
+            setIsLoading(true)
             const folderPath =  `${grade}/${activeSubject?.subjectName}/${year}/`
 
             const {data, error} = await supabase.storage
@@ -39,15 +41,33 @@ const ListPapers = () => {
             }))
 
             setFiles(files)
+            setIsLoading(false)
 
         } catch (error: any) {
             Alert.alert('Error', error.message)
+        } finally {
+            setIsLoading(false)
         }
 
     }
 
     listFilesInFolder()
   }, [])
+
+  if(isLoading) {
+    return (
+        <View style={{flex: 1, height: '100%', width: '100%', backgroundColor: "#cbd5e1", padding: 0}}>
+            <CustomHeader 
+                title={`${activeSubject?.subjectName} | ${year as string}`}
+                subtitle='Past Papers for the selected year'
+                showBackButton={true}
+            />
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                <ActivityIndicator size='large' color='purple' />
+            </View>
+        </View>
+    )
+  }
 
   const openFile = (url: string, filename: string) => {
     router.push({
