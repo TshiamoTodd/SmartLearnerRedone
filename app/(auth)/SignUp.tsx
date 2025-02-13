@@ -19,7 +19,7 @@ AppState.addEventListener('change', (state) => {
 
 WebBrowser.maybeCompleteAuthSession(); // required for web only
 const redirectTo = makeRedirectUri({
-    scheme: 'com.mach.sidetest',
+    scheme: 'com.tshiamotodd.sidetest',
 });
 
 const createSessionFromUrl = async (url: string) => {
