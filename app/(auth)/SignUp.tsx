@@ -140,7 +140,8 @@ const SignUp = () => {
                 const {data: userData, error: userError} = await supabase.from('User').insert([{
                     id: userId,
                     email: userEmail,
-                    username: form.name
+                    username: form.name,
+                    role: 'Student'
                 }]).select()
 
                 console.log(userData)
