@@ -48,6 +48,7 @@
       [
         "react-native-vision-camera",
         {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
           "cameraPermissionText": "$(PRODUCT_NAME) requires access to your camera",
           "enableMicrophonePermission": true,
           "microphonePermissionText": "$(PRODUCT_NAME) requires access to your microphone"
@@ -70,7 +71,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "d704aeb1-ec9c-4974-87aa-0a6441a43302"
+        "projectId": "b6d6ae14-a6d0-402a-94cd-9fbb751e8024"
       }
     }
   }

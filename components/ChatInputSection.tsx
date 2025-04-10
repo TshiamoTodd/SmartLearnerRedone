@@ -7,10 +7,17 @@ import { useFileContext } from '@/context/FileProvider';
 import OpenCameraBtn from './OpenCameraBtn';
 import { Message, useMessageContext } from '@/context/MessageProvider';
 import OpenAI from 'openai';
+import { useOnboarding } from '@/context/OnboardingProvider';
 
 const openai = new OpenAI({
     apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY,
 });
+
+const primaryGradeLevels = [
+    { label: 'Grade 1 - 3', value: '1' },
+    { label: 'Grade 4 - 6', value: '2' },
+    { label: 'Grade 7', value: '3' },
+  ];
 
 const ChatInputSection = ({
     setIsChatActive,
@@ -21,6 +28,7 @@ const ChatInputSection = ({
 }) => {
     const {ocrFileContents} = useFileContext()
     const {setMessages, messages} = useMessageContext()
+    const {gradeRange, activeSubject} = useOnboarding()
 
     const [height, setHeight] = useState(35);
     const [margin, setMargin] = useState(0);
@@ -37,9 +45,17 @@ const ChatInputSection = ({
         try {
             //@ts-ignore
             const response = await openai.chat.completions.create({
-                model: 'gpt-3.5-turbo',
+                model: 'gpt-4o',
                 messages: [
-                    { role: 'system', content: 'You are a helpful assistant.'},
+                    { 
+                        role: 'system', 
+                        content: `
+                            You are an AI tutor designed to assist South African students in 
+                            ${primaryGradeLevels.find((grade) => grade.value === gradeRange)?.label} with their homework.
+                            Your goal is to provide clear and concise explanations, examples, and guidance in relation to ${activeSubject} as a subject the current student is enrolled in.
+                            Please ensure that your responses are tailored to the South African curriculum and educational standards.
+                        `
+                    },
                     ...messages.map((msg) => ({
                         role: msg.sender === 'user' ? 'user' : 'assistant',
                         content: msg.content,

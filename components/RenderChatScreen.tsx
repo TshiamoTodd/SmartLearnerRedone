@@ -1,6 +1,9 @@
 import { View, Text, FlatList } from 'react-native'
 import React from 'react'
-import { Message } from '@/context/MessageProvider';
+import { Message } from '@/context/MessageProvider'
+import { format } from "date-fns"
+import Markdown from 'react-native-markdown-display'
+
 
 const RenderChatScreen = ({messages}: {messages: Message[]}) => {
 
@@ -19,11 +22,27 @@ const RenderChatScreen = ({messages}: {messages: Message[]}) => {
             }}
             className='flex flex-col'
         >
-            <Text style={{ color: item.sender === "user" ? "white" : "white" }} className='text-sm'>
-                {item.content}
-            </Text>
+            {item.sender === "user" ? (
+                <Text style={{ color: item.sender === "user" ? "white" : "white" }} className='text-sm'>
+                    {item.content}
+                </Text>
+
+            ):(
+                <Markdown
+                    style={{
+                    body: { color: "white", fontSize: 14 },
+                    strong: { fontWeight: 'bold' },
+                    paragraph: { marginBottom: 8 },
+                    list_item: { flexDirection: 'row', alignItems: 'flex-start' },
+                    bullet_list: { marginVertical: 4 },
+                    ordered_list: { marginVertical: 4 }
+                    }}
+                >
+                    {item.content}
+                </Markdown>
+            )}
             <Text className='text-[10px] text-gray-200 text-right'>
-                {Date.now()}
+                {format(Date.now(), "MMMM do, yyyy H:mma")}
             </Text>
       </View>
     )}
@@ -39,6 +58,6 @@ const RenderChatScreen = ({messages}: {messages: Message[]}) => {
             />
         </View>
     )
-    }
+}
 
 export default RenderChatScreen

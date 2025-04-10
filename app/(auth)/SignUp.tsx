@@ -164,7 +164,6 @@ const SignUp = () => {
 
     return (
         <View className='bg-white h-full w-full'>
-            <StatusBar barStyle={'light-content'} />
         <Image
             className='h-full w-full absolute'
             source={require('@/assets/images/background.png')}
@@ -201,34 +200,34 @@ const SignUp = () => {
                 </Animated.Text>
             </View>
 
-            <Animated.View
-                className='w-full'
-                entering={FadeInDown.delay(400).duration(1000).springify()}
-            >
-                <TouchableOpacity 
-                    className='bg-white shadow-md shadow-zinc-300 rounded-full py-4 mt-5'
-                    onPress={performOAuth}
-                >
-                <View className='flex flex-row items-center justify-center'>
-                    <Image
-                        source={require('@/assets/images/google.png')}
-                        className='w-8 h-8'
-                        resizeMode='contain'
-                    />
-                        {isLoading ? (
-                            <ActivityIndicator size='large' color='white'/>
-                        ): (
-                            <Text className='text-lg font-rubik-medium text-black-300 ml-2'>Continue With Google</Text>
-                        )}
-                </View>
-
-                </TouchableOpacity>
-            </Animated.View>
             {/* Form */}
-            <View className='flex items-center mx-4 space-y-4 mt-6'>
+            <View className='flex items-center mx-4 space-y-4 mt-0'>
+                <Animated.View
+                    className='flex items-center w-full'
+                    entering={FadeInDown.delay(400).duration(1000).springify()}
+                >
+                    <TouchableOpacity 
+                        className='bg-white shadow-md w-full shadow-zinc-300 rounded-full py-2 mt-5'
+                        onPress={performOAuth}
+                    >
+                    <View className='flex flex-row items-center justify-center'>
+                        <Image
+                            source={require('@/assets/images/google.png')}
+                            className='w-8 h-8'
+                            resizeMode='contain'
+                        />
+                            {isLoading ? (
+                                <ActivityIndicator size='large' color='white'/>
+                            ): (
+                                <Text className='text-lg font-rubik-medium text-black-300 ml-2'>Continue With Google</Text>
+                            )}
+                    </View>
+
+                    </TouchableOpacity>
+                </Animated.View>
                 <Animated.View 
                     entering={FadeInDown.delay(200).duration(1000).springify()}
-                    className='flex-row items-center border border-slate-300 gap-x-2 bg-black/5 p-5 rounded-full w-full'
+                    className='flex-row items-center border border-slate-300 gap-x-2 bg-black/5 p-2 rounded-full w-full'
                 >
                     <AntDesign name="user" size={20} color="gray" />
                     <TextInput
@@ -241,7 +240,7 @@ const SignUp = () => {
 
                 <Animated.View 
                     entering={FadeInDown.delay(400).duration(1000).springify()}
-                    className='flex-row items-center border border-slate-300 gap-x-2 bg-black/5 p-5 rounded-full w-full'
+                    className='flex-row items-center border border-slate-300 gap-x-2 bg-black/5 p-2 rounded-full w-full'
                 >
                     <AntDesign name="mail" size={20} color="gray" />
                     <TextInput
@@ -254,7 +253,7 @@ const SignUp = () => {
 
                 <Animated.View 
                     entering={FadeInDown.delay(600).duration(1000).springify()} 
-                    className='flex-row items-center border border-slate-300 gap-x-2 bg-black/5 p-5 rounded-full w-full'
+                    className='flex-row items-center border border-slate-300 gap-x-2 bg-black/5 p-2 rounded-full w-full'
                 >
                     <AntDesign name="unlock" size={20} color="gray" />
                     <TextInput
