@@ -1,18 +1,13 @@
-import { supabase } from "@/lib/supabase";
+import sql from "@/lib/neon";
 import * as FileSystem from 'expo-file-system';
 
 export const getSubjectsByGradeAndSchool = async (grade: string, school: string) => {
     try {
-        const {data, error} = await supabase.from('Subject')
-        .select('subject_name, subject_id')
-        .eq('grade_range', grade)
-        .eq('school_level', school);
-
-        if (error) {
-            console.error(error)
-            throw error;
-        }
-
+        const data = await sql`
+            SELECT subject_name, subject_id 
+            FROM "Subject" 
+            WHERE grade_range = ${grade} AND school_level = ${school}
+        `;
         return data;
     } catch (error) {
         console.log("Error fetching subjects:", error);
@@ -22,15 +17,11 @@ export const getSubjectsByGradeAndSchool = async (grade: string, school: string)
 
 export const getSubjectVideosBySubjectId = async (subjectId: string) => {
     try {
-        const {data, error} = await supabase.from('SubjectVideos')
-        .select('title, description, video_url')
-        .eq('subject_id', subjectId);
-
-        if (error) {
-            console.error(error)
-            throw error;
-        }
-
+        const data = await sql`
+            SELECT title, description, video_url 
+            FROM "SubjectVideos" 
+            WHERE subject_id = ${subjectId}
+        `;
         return data;
     } catch (error) {
         console.log("Error fetching videos:", error);
@@ -40,12 +31,12 @@ export const getSubjectVideosBySubjectId = async (subjectId: string) => {
 
 export const analyzeImage = async (imageUri: string) => {
     try {
-        if(!imageUri) {
-            return JSON.stringify({error: "No image provided"});
+        if (!imageUri) {
+            return JSON.stringify({ error: "No image provided" });
         }
 
-        const fileContent = await FileSystem.readAsStringAsync(imageUri, { 
-            encoding: FileSystem.EncodingType.Base64 
+        const fileContent = await FileSystem.readAsStringAsync(imageUri, {
+            encoding: FileSystem.EncodingType.Base64
         });
 
         const apiKey = process.env.EXPO_PUBLIC_CLOUD_VISION_API_KEY;
@@ -79,8 +70,8 @@ export const analyzeImage = async (imageUri: string) => {
         return data;
 
     } catch (error) {
-        console.error('Error analyzing image: ',error);
-        return JSON.stringify({error: "Error analyzing image"});
+        console.error('Error analyzing image: ', error);
+        return JSON.stringify({ error: "Error analyzing image" });
     }
 }
 

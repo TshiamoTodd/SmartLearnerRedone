@@ -1,52 +1,48 @@
 import { View, ActivityIndicator } from 'react-native';
-import { supabase } from "@/lib/supabase";
-import { Session } from "@supabase/supabase-js";
+import { firebaseAuth } from "@/lib/firebase";
+import { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import React, { createContext, ReactNode, useContext, useEffect, useState, } from "react";
 
-
 const AuthContext = createContext<{
-    session: Session | null;
-    user: Session['user'] | null;
+    user: FirebaseAuthTypes.User | null;
     isAuthenticated: boolean;
     username: string;
     setUsername?: React.Dispatch<React.SetStateAction<string>>;
 }>({
-    session: null,
     user: null,
     isAuthenticated: false,
     username: '',
-    setUsername: () => {}
+    setUsername: () => { }
 });
 
-export default function AuthProvider({children}: {children: ReactNode}) {
-    const [session, setSession] = useState<Session | null>(null)
-    const [isReady, setIsReady] = useState(false)
-    const [username, setUsername] = useState('')
+export default function AuthProvider({ children }: { children: ReactNode }) {
+    const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
+    const [isReady, setIsReady] = useState(false);
+    const [username, setUsername] = useState('');
 
     useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session)
-            setIsReady(true)
-        })
-
-        supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session)
-        })
-
-    }, [])
+        const subscriber = firebaseAuth.onAuthStateChanged((user) => {
+            setUser(user);
+            if (user) {
+                // Ideally fetch username from DB here if needed, 
+                // or use user.displayName if available
+                setUsername(user.displayName || '');
+            }
+            setIsReady(true);
+        });
+        return subscriber; // unsubscribe on unmount
+    }, []);
 
     if (!isReady) {
         return (
-            <>
-                <View className="flex-1 items-center justify-center">
-                    <ActivityIndicator size='large' color='purple' />
-                </View>
-            </>
+            <View className="flex-1 items-center justify-center">
+                <ActivityIndicator size='large' color='purple' />
+            </View>
         )
     }
 
     return (
-        <AuthContext.Provider value={{session, user: session?.user ?? null, isAuthenticated: !!session?.user, username, setUsername}}>
+        <AuthContext.Provider value={{ user, isAuthenticated: !!user, username, setUsername }}>
             {children}
         </AuthContext.Provider>
     );

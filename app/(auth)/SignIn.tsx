@@ -1,159 +1,86 @@
-import { View, Text, TextInput, Image, StatusBar, TouchableOpacity, Alert, ActivityIndicator, AppState } from 'react-native'
+import { View, Text, TextInput, Image, TouchableOpacity, Alert, ActivityIndicator } from 'react-native'
 import React, { useState } from 'react'
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated'
 import { Href, router } from 'expo-router'
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { supabase } from '@/lib/supabase';
+import { firebaseAuth } from '@/lib/firebase';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import auth from '@react-native-firebase/auth';
 import { useAuthContext } from '@/context/AuthProvider';
-import { makeRedirectUri } from "expo-auth-session";
-import * as QueryParams from "expo-auth-session/build/QueryParams";
-import * as WebBrowser from "expo-web-browser";
+import sql from '@/lib/neon';
 
-AppState.addEventListener('change', (state) => {
-    if (state === 'active') {
-      supabase.auth.startAutoRefresh()
-    } else {
-      supabase.auth.stopAutoRefresh()
-    }
-})
-
-WebBrowser.maybeCompleteAuthSession(); // required for web only
-const redirectTo = makeRedirectUri({
-    scheme: 'com.tshiamotodd.sidetest',
+// Configure Google Sign-In
+GoogleSignin.configure({
+    webClientId: process.env.EXPO_PUBLIC_FIREBASE_WEB_CLIENT_ID, // From Firebase Console
 });
 
-const createSessionFromUrl = async (url: string) => {
-    const { params, errorCode } = QueryParams.getQueryParams(url);
-  
-    if (errorCode) throw new Error(errorCode);
-    const { access_token, refresh_token } = params;
-
-    console.log({access_token, refresh_token})
-  
-    if (!access_token) return;
-  
-    const { data, error } = await supabase.auth.setSession({
-      access_token,
-      refresh_token,
-    });
-    if (error) throw error;
-    console.log("Session data: ",{data})
-    console.log("Session user: ", data.session?.user)
-    return data.session;
-};
-
-
-  
-
 const SignIn = () => {
-    const {setUsername} = useAuthContext()
+    const { setUsername } = useAuthContext()
     const [isLoading, setIsLoading] = useState(false)
     const [form, setForm] = useState({
         email: '',
         password: ''
     })
 
-    const performOAuth = async () => {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-            redirectTo: `${redirectTo}SignIn`,
-            skipBrowserRedirect: true,
-          },
-        });
-    
-        if (error) throw error;
-      
-        if(data) {
-            console.log("Data from signInWithOAuth: ", {data})
-    
-            const res = await WebBrowser.openAuthSessionAsync(
-                data?.url ?? "",
-                redirectTo,
-            );
-    
-    
-            if (res.type === "success") {
-                setIsLoading(true)
-                console.log("Response from browser",{res})
-    
-                const { url } = res;
-                console.log("Browser respose url", {url})
-                const session = await createSessionFromUrl(url);
-    
-                console.log("Session user: ", session?.user.id)
-    
-                if(session?.user) {
-                    const {data: userData, error: userError} = await supabase
-                    .from('User')
-                    .select('username')
-                    .eq('id', session.user.id)
-                    .single()
-    
-                    console.log({userData})
-    
-                    if(userData == null) {
-                        const {data: createUserData, error: userError} = await supabase.from('User').insert([{
-                            id: session.user.id,
-                            email: session.user.email,
-                            username: session.user.user_metadata.name
-                        }]).select()
-        
-                        console.log(createUserData)
-        
-                        setUsername!(session.user.user_metadata.name)
+    const onGoogleButtonPress = async () => {
+        try {
+            setIsLoading(true);
+            // Check if your device supports Google Play
+            await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+            // Get the users ID token
+            const userInfo = await GoogleSignin.signIn();
+            const idToken = userInfo.data?.idToken;
+            if (!idToken) throw new Error('No ID token found');
 
-                        if(createUserData) {
-                            setIsLoading(false)
-                            router.push('/(onboarding)/School' as Href)
-                        }
-                    } else {
-                        setUsername!(userData?.username)
-                        setIsLoading(false)
-                        router.dismissAll()
-                        router.replace('/Home')
-                    }
-                
-                }
+            // Create a Google credential with the token
+            const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+
+            // Sign-in the user with the credential
+            const userCredential = await firebaseAuth.signInWithCredential(googleCredential);
+
+            if (userCredential.user) {
+                await checkAndCreateUser(userCredential.user);
+                router.replace('/Home');
             }
+        } catch (error: any) {
+            console.error(error);
+            Alert.alert('Google Sign-In Error', error.message);
+        } finally {
+            setIsLoading(false);
         }
-      
-    };
+    }
 
-    const signInWithSupabase = async () => {
+    const checkAndCreateUser = async (user: any) => {
+        try {
+            // Check if user exists in Neon
+            const users = await sql`SELECT username FROM "User" WHERE id = ${user.uid}`;
+
+            if (users.length === 0) {
+                // Create user if not exists
+                await sql`INSERT INTO "User" (id, email, username) VALUES (${user.uid}, ${user.email}, ${user.displayName || 'User'})`;
+                setUsername && setUsername(user.displayName || 'User');
+                router.push('/(onboarding)/School' as Href);
+            } else {
+                setUsername && setUsername(users[0].username);
+                router.replace('/Home');
+            }
+        } catch (error) {
+            console.error("Error syncing user to DB:", error);
+            // Don't block login on DB error, but warn
+        }
+    }
+
+    const signInWithFirebase = async () => {
         try {
             setIsLoading(true)
-            const {data, error} = await supabase.auth.signInWithPassword({
-                email: form.email,
-                password: form.password
-            })
+            const userCredential = await firebaseAuth.signInWithEmailAndPassword(form.email, form.password);
 
-            if(data.session){
-                const formattedEmail:string = form.email.toLowerCase().trim().toString()
-                console.log(formattedEmail)
-                const {data: userData, error: userError} = await supabase
-                .from('User')
-                .select('username')
-                .eq('email', formattedEmail)
-                .single()
-
-                console.log(userData)
-                if(userError) {
-                    console.log(userError)
-                }
-                setUsername!(userData?.username)
+            if (userCredential.user) {
+                await checkAndCreateUser(userCredential.user);
             }
 
-            if (error) {
-                Alert.alert('Error', error.message)
-                return
-            } else {
-                setIsLoading(false)
-                router.push('/(dashboard)/(home)/Home' as Href)
-            }
-
-        } catch (error) {
-            Alert.alert('Error', error as string)
+        } catch (error: any) {
+            Alert.alert('Error', error.message)
             console.log(error)
         } finally {
             setIsLoading(false)
@@ -185,13 +112,13 @@ const SignIn = () => {
                 {/* Title */}
                 <View className='flex items-center'>
                     <Animated.Text
-                        entering={FadeInUp.delay(100).duration(1000).springify()} 
+                        entering={FadeInUp.delay(100).duration(1000).springify()}
                         className='text-white font-bold tracking-wider text-4xl'
                     >
                         Smart Learning
                     </Animated.Text>
-                    <Animated.Text 
-                        entering={FadeInUp.delay(100).duration(1000).springify()} 
+                    <Animated.Text
+                        entering={FadeInUp.delay(100).duration(1000).springify()}
                         className='text-white text-lg font-light px-7'
                     >
                         Login to your account
@@ -204,47 +131,47 @@ const SignIn = () => {
                         className='w-full'
                         entering={FadeInDown.delay(400).duration(1000).springify()}
                     >
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             className='bg-white shadow-md shadow-zinc-300 rounded-full py-2 mt-5'
-                            onPress={performOAuth}
+                            onPress={onGoogleButtonPress}
                         >
-                        <View className='flex flex-row items-center justify-center'>
-                            <Image
-                                source={require('@/assets/images/google.png')}
-                                className='w-8 h-8'
-                                resizeMode='contain'
-                            />
+                            <View className='flex flex-row items-center justify-center'>
+                                <Image
+                                    source={require('@/assets/images/google.png')}
+                                    className='w-8 h-8'
+                                    resizeMode='contain'
+                                />
                                 {isLoading ? (
-                                    <ActivityIndicator size='large' color='white'/>
-                                ): (
+                                    <ActivityIndicator size='large' color='white' />
+                                ) : (
                                     <Text className='text-lg font-rubik-medium text-black-300 ml-2'>Continue With Google</Text>
                                 )}
-                        </View>
+                            </View>
 
                         </TouchableOpacity>
                     </Animated.View>
 
-                    <Animated.View 
+                    <Animated.View
                         entering={FadeInDown.duration(1000).springify()}
                         className='flex-row items-center border border-slate-300 gap-x-2 bg-black/5 p-3 rounded-full w-full'
                     >
                         <AntDesign name="mail" size={20} color="gray" />
                         <TextInput
                             value={form.email}
-                            onChangeText={newEmail => setForm({...form, email: newEmail})}
+                            onChangeText={newEmail => setForm({ ...form, email: newEmail })}
                             placeholder='Email'
                             placeholderTextColor='gray'
                             className='text-md'
                         />
                     </Animated.View>
 
-                    <Animated.View 
-                        entering={FadeInDown.delay(200).duration(1000).springify()} 
+                    <Animated.View
+                        entering={FadeInDown.delay(200).duration(1000).springify()}
                         className='flex-row items-center border border-slate-300 gap-x-2 bg-black/5 p-3 rounded-full w-full'
                     >
                         <AntDesign name="unlock" size={20} color="gray" />
                         <TextInput
-                            onChangeText={newPassword => setForm({...form, password: newPassword})}
+                            onChangeText={newPassword => setForm({ ...form, password: newPassword })}
                             value={form.password}
                             placeholder='Password'
                             placeholderTextColor='gray'
@@ -253,23 +180,23 @@ const SignIn = () => {
                         />
                     </Animated.View>
 
-                    <Animated.View 
+                    <Animated.View
                         className='w-full'
                         entering={FadeInDown.delay(400).duration(1000).springify()}
                     >
                         <TouchableOpacity
                             className='w-full items-center justify-center bg-sky-400 p-3 rounded-full mb-3'
-                            onPress={signInWithSupabase}
+                            onPress={signInWithFirebase}
                         >
                             {isLoading ? (
                                 <ActivityIndicator size='large' color='white' />
-                            ): (
+                            ) : (
                                 <Text className='text-xl font-bold text-white text-center'>Login</Text>
                             )}
                         </TouchableOpacity>
                     </Animated.View>
 
-                    <Animated.View 
+                    <Animated.View
                         className='flex-row justify-center'
                         entering={FadeInDown.delay(600).duration(1000).springify()}
                     >

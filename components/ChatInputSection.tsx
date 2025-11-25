@@ -6,29 +6,25 @@ import UploadFileBtn from './UploadFileBtn';
 import { useFileContext } from '@/context/FileProvider';
 import OpenCameraBtn from './OpenCameraBtn';
 import { Message, useMessageContext } from '@/context/MessageProvider';
-import OpenAI from 'openai';
+import { geminiModel } from '@/lib/gemini';
 import { useOnboarding } from '@/context/OnboardingProvider';
-
-const openai = new OpenAI({
-    apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY,
-});
 
 const primaryGradeLevels = [
     { label: 'Grade 1 - 3', value: '1' },
     { label: 'Grade 4 - 6', value: '2' },
     { label: 'Grade 7', value: '3' },
-  ];
+];
 
 const ChatInputSection = ({
     setIsChatActive,
     isChatActive
-} : {
+}: {
     isChatActive: boolean;
     setIsChatActive: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
-    const {ocrFileContents} = useFileContext()
-    const {setMessages, messages} = useMessageContext()
-    const {gradeRange, activeSubject} = useOnboarding()
+    const { ocrFileContents } = useFileContext()
+    const { setMessages, messages } = useMessageContext()
+    const { gradeRange, activeSubject } = useOnboarding()
 
     const [height, setHeight] = useState(35);
     const [margin, setMargin] = useState(0);
@@ -36,101 +32,109 @@ const ChatInputSection = ({
     const [inputTextValue, setInputTextValue] = useState(ocrFileContents || "")
 
     const sendMessage = async () => {
-        const userMessage: Message = { id: Date.now().toString(), type: 'text', content: inputTextValue, sender: 'user'};
+        const userMessage: Message = { id: Date.now().toString(), type: 'text', content: inputTextValue, sender: 'user' };
         setMessages((prev) => [...prev, userMessage]);
 
         setInputTextValue('')
 
-        // OpenAI response
+        // Gemini response
         try {
-            //@ts-ignore
-            const response = await openai.chat.completions.create({
-                model: 'gpt-4o',
-                messages: [
-                    { 
-                        role: 'system', 
-                        content: `
+            const history = messages.map((msg) => ({
+                role: msg.sender === 'user' ? 'user' : 'model',
+                parts: [{ text: msg.content }],
+            }));
+
+            const chat = geminiModel.startChat({
+                history: [
+                    {
+                        role: 'user',
+                        parts: [{
+                            text: `
                             You are an AI tutor designed to assist South African students in 
                             ${primaryGradeLevels.find((grade) => grade.value === gradeRange)?.label} with their homework.
                             Your goal is to provide clear and concise explanations, examples, and guidance in relation to ${activeSubject} as a subject the current student is enrolled in.
                             Please ensure that your responses are tailored to the South African curriculum and educational standards.
-                        `
+                        ` }]
                     },
-                    ...messages.map((msg) => ({
-                        role: msg.sender === 'user' ? 'user' : 'assistant',
-                        content: msg.content,
-                    })),
-                    { role: 'user', content: inputTextValue},
+                    {
+                        role: 'model',
+                        parts: [{ text: "Understood. I am ready to help the student with their homework." }]
+                    },
+                    ...history
                 ],
-            })
+            });
+
+            const result = await chat.sendMessage(inputTextValue);
+            const response = result.response;
+            const text = response.text();
 
             const aiMessage: Message = {
                 id: Date.now().toString(),
                 type: 'text',
-                content: response.choices[0]?.message?.content || 'Sorry, I did not understand that...',
+                content: text || 'Sorry, I did not understand that...',
                 sender: 'system',
             };
             setMessages((prev) => [...prev, aiMessage])
 
         } catch (error: any) {
-            console.error('Failed to send message to OpenAI', error);
-            const aiMessage: Message = { 
-                id: Date.now().toString(), 
-                type: 'text', 
-                content: "Sorry, I'm having trouble connecting to OpenAI. Please try again later.", 
+            console.error('Failed to send message to Gemini', error);
+            const aiMessage: Message = {
+                id: Date.now().toString(),
+                type: 'text',
+                content: "Sorry, I'm having trouble connecting to Gemini. Please try again later.",
                 sender: 'system'
             }
             setMessages((prev) => [...prev, aiMessage])
-            Alert.alert('Failed to send message to OpenAI', error.message);
+            Alert.alert('Failed to send message to Gemini', error.message);
 
         }
     }
 
     const displayChat = () => {
-        if(inputTextValue.trim().length === 0) return;
-        inputTextValue && sendMessage() 
+        if (inputTextValue.trim().length === 0) return;
+        inputTextValue && sendMessage()
         setIsChatActive(true)
     }
 
     return (
         <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0} // Adjust based on header height
-                className='flex'
-            >
-                <View className='flex w-full p-3 m-0 items-center justify-between min-h-[120px]'>
-                    <View className={`bg-[#afbcff] flex w-full flex-1 p-1 rounded-lg overflow-hidden`}>
-                        <View className='bg-[#afbcff] flex-[0.6]'>
-                            <TextInput
-                                value={inputTextValue!}
-                                onChangeText={(text) => setInputTextValue(text)}
-                                multiline
-                                className='w-full flex-1 p-2 bg-[#bbc6ff]'
-                                onContentSizeChange={(event) => {
-                                    const newHeight = Math.max(35, event.nativeEvent.contentSize.height);
-                                    setHeight(newHeight);
-                                    setMargin(Math.max(0, 120 - margin));
-                                
-                                }}
-                                style={{ height: height, backgroundColor: '#bbc6ff' }}
-                                placeholder='Type a message...'
-                            />
-                        </View>
-                        <View className='bg-[#afbcff] flex-[0.4] flex-row items-center justify-between'>
-                            {isKeyboardActive ? (
-                                <TouchableOpacity 
-                                    onPress={() => setIsKeyboardActive(false)} 
-                                    className='pl-2'
-                                >
-                                    <AntDesign name="plus" size={20} color="grey" />
-                                </TouchableOpacity>
-                            ) : (
-                                <View className='flex flex-row items-center'>
-                                    <UploadFileBtn />
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0} // Adjust based on header height
+            className='flex'
+        >
+            <View className='flex w-full p-3 m-0 items-center justify-between min-h-[120px]'>
+                <View className={`bg-[#afbcff] flex w-full flex-1 p-1 rounded-lg overflow-hidden`}>
+                    <View className='bg-[#afbcff] flex-[0.6]'>
+                        <TextInput
+                            value={inputTextValue!}
+                            onChangeText={(text) => setInputTextValue(text)}
+                            multiline
+                            className='w-full flex-1 p-2 bg-[#bbc6ff]'
+                            onContentSizeChange={(event) => {
+                                const newHeight = Math.max(35, event.nativeEvent.contentSize.height);
+                                setHeight(newHeight);
+                                setMargin(Math.max(0, 120 - margin));
 
-                                    <OpenCameraBtn />
-                                </View>
-                            )}
+                            }}
+                            style={{ height: height, backgroundColor: '#bbc6ff' }}
+                            placeholder='Type a message...'
+                        />
+                    </View>
+                    <View className='bg-[#afbcff] flex-[0.4] flex-row items-center justify-between'>
+                        {isKeyboardActive ? (
+                            <TouchableOpacity
+                                onPress={() => setIsKeyboardActive(false)}
+                                className='pl-2'
+                            >
+                                <AntDesign name="plus" size={20} color="grey" />
+                            </TouchableOpacity>
+                        ) : (
+                            <View className='flex flex-row items-center'>
+                                <UploadFileBtn />
+
+                                <OpenCameraBtn />
+                            </View>
+                        )}
 
                         <TouchableOpacity
                             className='pr-1'
@@ -138,9 +142,9 @@ const ChatInputSection = ({
                         >
                             <AntDesign name="arrowright" size={20} color="gray" />
                         </TouchableOpacity>
-                        </View>
                     </View>
                 </View>
+            </View>
 
         </KeyboardAvoidingView>
     )

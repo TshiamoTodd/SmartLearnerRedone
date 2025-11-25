@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "627049853824",
+    "project_id": "smartlearnerredo",
+    "storage_bucket": "smartlearnerredo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:627049853824:android:c82c155e2fb478d83f0765",
+        "android_client_info": {
+          "package_name": "com.tshiamotodd.sidetest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBeTz0ZaHrJ_Umbnom7ooHlRZnnJYzsCno"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
